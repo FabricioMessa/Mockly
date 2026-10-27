@@ -28,13 +28,13 @@ export function StatChip({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-card border border-border bg-surface px-4 py-3 shadow-card',
+        'flex items-center gap-2 rounded-card border border-border bg-surface px-3 py-2.5 shadow-card lg:gap-3 lg:px-4 lg:py-3',
         className,
       )}
     >
       <span
         className={cn(
-          'flex size-10 shrink-0 items-center justify-center rounded-input',
+          'flex size-8 shrink-0 items-center justify-center rounded-lg lg:size-10 lg:rounded-input',
           tones[tone],
         )}
         aria-hidden="true"
@@ -42,10 +42,10 @@ export function StatChip({
         {icon}
       </span>
       <div className="flex min-w-0 flex-col">
-        <span className="font-display text-h2 font-semibold leading-none text-content-primary">
+        <span className="font-display text-[15px] font-semibold leading-none text-content-primary lg:text-h2">
           {value}
         </span>
-        <span className="truncate text-caption text-content-secondary">
+        <span className="truncate text-[10px] text-content-secondary lg:text-caption">
           {label}
         </span>
       </div>

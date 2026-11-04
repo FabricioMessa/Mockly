@@ -4,6 +4,7 @@ import { Dashboard } from './pages/Dashboard'
 import { DesignSystem } from './pages/DesignSystem'
 import { Login } from './pages/Login'
 import { NotFound } from './pages/NotFound'
+import { PerfilPago } from './pages/PerfilPago'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { Register } from './pages/Register'
 
@@ -47,16 +48,7 @@ export default function App() {
               />
             }
           />
-          <Route
-            path="/perfil"
-            element={
-              <PlaceholderPage
-                title="Perfil"
-                description="Datos del usuario y pasarela de pago."
-                owner="Fase 1 · Integrante A"
-              />
-            }
-          />
+          <Route path="/perfil" element={<PerfilPago />} />
           <Route path="/design-system" element={<DesignSystem />} />
         </Route>
 

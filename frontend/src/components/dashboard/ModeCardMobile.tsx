@@ -1,10 +1,12 @@
 import { ChevronRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { cn } from '../../lib/cn'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import type { Mode } from './modes'
 
 export function ModeCardMobile({ mode }: { mode: Mode }) {
+  const navigate = useNavigate()
   const Icon = mode.icon
 
   return (
@@ -32,6 +34,7 @@ export function ModeCardMobile({ mode }: { mode: Mode }) {
         size="sm"
         variant={mode.buttonVariant}
         rightIcon={<ChevronRight className="size-4" />}
+        onClick={() => navigate('/simulacro')}
       >
         Empezar
       </Button>

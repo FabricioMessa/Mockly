@@ -7,6 +7,7 @@ import { NotFound } from './pages/NotFound'
 import { PerfilPago } from './pages/PerfilPago'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { Register } from './pages/Register'
+import { SalaSimulacro } from './pages/SalaSimulacro'
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/simulacro" element={<SalaSimulacro />} />
 
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<Dashboard />} />

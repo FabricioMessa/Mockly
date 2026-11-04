@@ -1,6 +1,8 @@
+import { useNavigate } from 'react-router-dom'
 import type { Mode } from './modes'
 
 export function ModeCardDesktop({ mode }: { mode: Mode }) {
+  const navigate = useNavigate()
   const Icon = mode.icon
 
   return (
@@ -39,6 +41,7 @@ export function ModeCardDesktop({ mode }: { mode: Mode }) {
       <div className="mt-auto pt-5">
         <button
           type="button"
+          onClick={() => navigate('/simulacro')}
           className="h-11 w-full rounded-pill bg-black/15 text-label font-medium text-white transition-colors hover:bg-black/25"
         >
           Empezar

@@ -1,104 +1,103 @@
-import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export function FeedbackReport() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10">
+    <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
       <div className="max-w-4xl mx-auto space-y-6">
         
-        {/* Top Hero Card */}
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6 md:p-8 shadow-xl backdrop-blur-md relative overflow-hidden">
-          <div className="absolute top-6 right-6 flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-xs text-emerald-400 font-medium">
-            <span>● Good Job</span>
+        {/* Tarjeta Resumen Principal */}
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm relative">
+          <div className="absolute top-6 right-6 flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs text-emerald-700 font-semibold">
+            <span>● Buen Trabajo</span>
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-blue-500 bg-blue-600/10">
+            <div className="flex h-28 w-28 items-center justify-center rounded-full border-4 border-blue-600 bg-blue-50">
               <div className="text-center">
-                <span className="text-3xl font-extrabold text-white">82</span>
-                <span className="block text-[10px] text-slate-400 uppercase tracking-wider">out of 100</span>
+                <span className="text-3xl font-extrabold text-slate-900">82</span>
+                <span className="block text-[9px] text-slate-400 uppercase tracking-wider font-semibold">de 100</span>
               </div>
             </div>
 
-            <div className="space-y-2 text-center md:text-left">
-              <h1 className="text-2xl font-bold">Interview Complete</h1>
-              <p className="text-sm text-slate-300">
-                You completed a <strong className="text-white">Product Management</strong> interview simulation &bull; 3 behavioral questions, 5m 34s total. Your score places you in the <strong className="text-blue-400">top 28%</strong> of all candidates this week.
+            <div className="space-y-1.5 text-center md:text-left">
+              <h1 className="text-2xl font-bold text-slate-900">Entrevista Completada</h1>
+              <p className="text-sm text-slate-600">
+                Completaste la simulación de <strong className="text-slate-900">Product Management</strong> &bull; 3 preguntas conductuales en 5m 34s. Tu puntaje te ubica en el <strong className="text-blue-600">top 28%</strong> de los participantes esta semana.
               </p>
-              <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-2 text-xs text-slate-400">
-                <span>Questions: <strong className="text-white">3</strong></span>
-                <span>Total Duration: <strong className="text-white">5m 34s</strong></span>
-                <span>Avg. Score: <strong className="text-white">80.3</strong></span>
-                <span>Role: <strong className="text-white">PM Senior</strong></span>
+              <div className="flex flex-wrap justify-center md:justify-start gap-4 pt-2 text-xs text-slate-500">
+                <span>Preguntas: <strong className="text-slate-800">3</strong></span>
+                <span>Duración: <strong className="text-slate-800">5m 34s</strong></span>
+                <span>Promedio: <strong className="text-slate-800">80.3</strong></span>
+                <span>Rol: <strong className="text-slate-800">PM Senior</strong></span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 4 Key Metric Cards */}
+        {/* Mallas de Métricas */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-            <span className="text-xs text-slate-400 block mb-1">Speech Fluency & Pace</span>
-            <p className="text-2xl font-bold text-white mb-1">87</p>
-            <span className="text-[10px] text-emerald-400">~142 wpm &bull; Ideal range</span>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <span className="text-xs text-slate-500 block mb-1">Fluidez y Ritmo</span>
+            <p className="text-2xl font-bold text-slate-900 mb-1">87</p>
+            <span className="text-[10px] text-emerald-600 font-medium">~142 wpm &bull; Rango ideal</span>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-            <span className="text-xs text-slate-400 block mb-1">Filler Words Usage</span>
-            <p className="text-2xl font-bold text-amber-400 mb-1">Low</p>
-            <span className="text-[10px] text-slate-400">6 instances &bull; 'um', 'like'</span>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <span className="text-xs text-slate-500 block mb-1">Uso de Muletillas</span>
+            <p className="text-2xl font-bold text-amber-600 mb-1">Bajo</p>
+            <span className="text-[10px] text-slate-500">6 veces &bull; 'este', 'o sea'</span>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-            <span className="text-xs text-slate-400 block mb-1">Confidence Score</span>
-            <p className="text-2xl font-bold text-white mb-1">79</p>
-            <span className="text-[10px] text-slate-400">Strong opener, mild fade</span>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <span className="text-xs text-slate-500 block mb-1">Nivel de Confianza</span>
+            <p className="text-2xl font-bold text-slate-900 mb-1">79</p>
+            <span className="text-[10px] text-slate-500">Inicio firme</span>
           </div>
 
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-            <span className="text-xs text-slate-400 block mb-1">Key Keywords Used</span>
-            <p className="text-2xl font-bold text-blue-400 mb-1">14/20</p>
-            <span className="text-[10px] text-slate-400">STAR, metrics, ownership</span>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <span className="text-xs text-slate-500 block mb-1">Palabras Clave</span>
+            <p className="text-2xl font-bold text-blue-600 mb-1">14/20</p>
+            <span className="text-[10px] text-slate-500">STAR, métricas, liderazgo</span>
           </div>
         </div>
 
-        {/* AI Feedback - STAR Method section */}
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <h2 className="text-base font-semibold">AI Feedback &bull; STAR Method Breakdown</h2>
-            <button onClick={() => navigate('/dashboard')} className="text-xs text-blue-400 hover:underline">
+        {/* Feedback STAR Breakdown */}
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 space-y-5 shadow-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <h2 className="text-base font-semibold text-slate-900">Feedback de IA &bull; Desglose Método STAR</h2>
+            <button onClick={() => navigate('/dashboard')} className="text-xs font-medium text-blue-600 hover:underline">
               Volver al Dashboard
             </button>
           </div>
 
-          {/* Situation */}
-          <div className="rounded-2xl border border-blue-500/30 bg-blue-950/20 p-5 space-y-2">
-            <span className="inline-block px-2.5 py-1 rounded-md bg-blue-600/20 text-blue-400 text-xs font-bold uppercase">Situation</span>
-            <p className="text-sm text-slate-200">You clearly established the context — team size and timeline are specific and credible.</p>
-            <p className="text-xs text-blue-300/80 italic">+ Add the business stakes (e.g., revenue at risk, customer impact) to sharpen urgency.</p>
+          {/* Situación */}
+          <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-4 space-y-1.5">
+            <span className="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-bold uppercase">Situación</span>
+            <p className="text-sm text-slate-800">Estableciste claramente el contexto: el tamaño del equipo y la línea de tiempo fueron específicos y creíbles.</p>
+            <p className="text-xs text-blue-600/90 italic">+ Agrega más contexto sobre el impacto en el negocio para generar mayor sentido de urgencia.</p>
           </div>
 
-          {/* Task */}
-          <div className="rounded-2xl border border-amber-500/30 bg-amber-950/20 p-5 space-y-2">
-            <span className="inline-block px-2.5 py-1 rounded-md bg-amber-600/20 text-amber-400 text-xs font-bold uppercase">Task</span>
-            <p className="text-sm text-slate-200">Your ownership was evident — 'I led' positions you correctly as the decision-maker.</p>
-            <p className="text-xs text-amber-300/80 italic">+ Briefly note what made this migration particularly complex versus standard upgrades.</p>
+          {/* Tarea */}
+          <div className="rounded-2xl border border-amber-100 bg-amber-50/50 p-4 space-y-1.5">
+            <span className="inline-block px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-xs font-bold uppercase">Tarea</span>
+            <p className="text-sm text-slate-800">Tu nivel de responsabilidad fue evidente. El uso de "yo lideré" te posiciona bien como tomador de decisiones.</p>
+            <p className="text-xs text-amber-700/90 italic">+ Menciona brevemente qué hizo que esta tarea fuera especialmente compleja.</p>
           </div>
 
-          {/* Action */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/20 p-5 space-y-2">
-            <span className="inline-block px-2.5 py-1 rounded-md bg-emerald-600/20 text-emerald-400 text-xs font-bold uppercase">Action</span>
-            <p className="text-sm text-slate-200">Good specificity: daily standups, two-day sprints, personal unblocking. Demonstrates hands-on leadership.</p>
-            <p className="text-xs text-emerald-300/80 italic">+ Name one specific technical or interpersonal obstacle you resolved — concrete examples land better than methods.</p>
+          {/* Acción */}
+          <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 space-y-1.5">
+            <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-bold uppercase">Acción</span>
+            <p className="text-sm text-slate-800">Buena especificidad: standups diarios, sprints de dos días y desbloqueo del equipo. Demuestra liderazgo activo.</p>
+            <p className="text-xs text-emerald-700/90 italic">+ Nombra un obstáculo técnico o interpersonal concreto que hayas resuelto.</p>
           </div>
 
-          {/* Result */}
-          <div className="rounded-2xl border border-purple-500/30 bg-purple-950/20 p-5 space-y-2">
-            <span className="inline-block px-2.5 py-1 rounded-md bg-purple-600/20 text-purple-400 text-xs font-bold uppercase">Result</span>
-            <p className="text-sm text-slate-200">Quantified outcome (on-time, zero P1 bugs) is strong. One month of stability is a solid proof point.</p>
-            <p className="text-xs text-purple-300/80 italic">+ Add a business metric — e.g., 'reduced infrastructure costs by 22%' or 'enabled the Q3 product launch'.</p>
+          {/* Resultado */}
+          <div className="rounded-2xl border border-purple-100 bg-purple-50/50 p-4 space-y-1.5">
+            <span className="inline-block px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-bold uppercase">Resultado</span>
+            <p className="text-sm text-slate-800">El resultado cuantificado (a tiempo, cero bugs críticos) es sólido y contundente.</p>
+            <p className="text-xs text-purple-700/90 italic">+ Añade una métrica de negocio (ej. "reducción de costos de infraestructura en un 20%").</p>
           </div>
         </div>
 

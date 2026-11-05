@@ -6,57 +6,55 @@ export function SetupInterview() {
   const [role, setRole] = useState('Junior Software Engineer')
   const [difficulty, setDifficulty] = useState('Medium')
   const [tone, setTone] = useState('Neutral')
-  const [cvUploaded, setCvUploaded] = useState(true)
 
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault()
-    // Aquí puedes guardar la config en localStorage o state global si deseas
-    navigate('/dashboard') // O a la sala de simulación activa
+    navigate('/simulacro')
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider">Interviews &bull; New simulation</span>
-          <h1 className="text-3xl font-bold mt-1">Set Up Your Interview</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Tailor a realistic AI interviewer to your role, experience, and goals.
+    <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
+      <div className="max-w-4xl mx-auto space-y-6">
+        <header className="mb-6">
+          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Interviews &bull; Nueva sesión</span>
+          <h1 className="text-3xl font-bold text-slate-900 mt-1">Configura tu Entrevista</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Personaliza el entrevistador con IA según tu rol, experiencia y objetivos.
           </p>
         </header>
 
         <form onSubmit={handleStart} className="space-y-6">
-          {/* CV Upload */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+          {/* Subir CV */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-semibold flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-xs">✓</span>
-                Add your CV or resume
+              <label className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-blue-600 text-xs font-bold">✓</span>
+                Sube tu CV o Resumen
               </label>
-              <span className="text-xs text-slate-400">PDF only, up to 10 MB.</span>
+              <span className="text-xs text-slate-400">Solo PDF, máx. 10 MB.</span>
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-dashed border-slate-700 bg-slate-950 p-4">
+            <div className="flex items-center justify-between rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-blue-600/20 p-2.5 text-blue-400">📄</div>
+                <div className="rounded-lg bg-blue-500/10 p-2.5 text-blue-600">📄</div>
                 <div>
-                  <p className="text-sm font-medium">Alex_Morgan_CV.pdf</p>
-                  <span className="text-xs text-emerald-400">Uploaded successfully</span>
+                  <p className="text-sm font-medium text-slate-900">Alex_Morgan_CV.pdf</p>
+                  <span className="text-xs text-emerald-600 font-medium">Subido correctamente</span>
                 </div>
               </div>
-              <button type="button" onClick={() => setCvUploaded(!cvUploaded)} className="text-xs text-slate-400 hover:text-white underline">
-                Change
+              <button type="button" className="text-xs text-slate-500 hover:text-slate-900 underline">
+                Cambiar
               </button>
             </div>
           </div>
 
-          {/* Role & Difficulty Grid */}
+          {/* Rol y Dificultad */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <label className="text-sm font-semibold block mb-3">Target role</label>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <label className="text-sm font-semibold text-slate-900 block mb-3">Puesto objetivo</label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 focus:border-blue-600 focus:outline-none"
               >
                 <option value="Junior Software Engineer">Junior Software Engineer</option>
                 <option value="Senior Frontend Developer">Senior Frontend Developer</option>
@@ -64,18 +62,18 @@ export function SetupInterview() {
               </select>
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-              <label className="text-sm font-semibold block mb-3">Difficulty</label>
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <label className="text-sm font-semibold text-slate-900 block mb-3">Dificultad</label>
               <div className="grid grid-cols-3 gap-2">
-                {['Easy', 'Medium', 'Hard'].map((lvl) => (
+                {['Fácil', 'Medium', 'Difícil'].map((lvl) => (
                   <button
                     key={lvl}
                     type="button"
                     onClick={() => setDifficulty(lvl)}
-                    className={`rounded-xl py-2.5 text-xs font-medium border transition ${
+                    className={`rounded-xl py-2.5 text-xs font-semibold border transition ${
                       difficulty === lvl
-                        ? 'border-blue-500 bg-blue-600/20 text-white'
-                        : 'border-slate-800 bg-slate-950 text-slate-400 hover:border-slate-700'
+                        ? 'border-blue-600 bg-blue-50 text-blue-600 shadow-sm'
+                        : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     {lvl}
@@ -85,41 +83,41 @@ export function SetupInterview() {
             </div>
           </div>
 
-          {/* Interviewer Personality */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
-            <label className="text-sm font-semibold block mb-1">Interviewer personality & tone</label>
-            <p className="text-xs text-slate-400 mb-4">Choose how your AI interviewer responds, probes, and gives you feedback.</p>
+          {/* Tono del entrevistador */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <label className="text-sm font-semibold text-slate-900 block mb-1">Personalidad y tono del entrevistador</label>
+            <p className="text-xs text-slate-500 mb-4">Selecciona la actitud y nivel de exigencia de la IA durante la simulación.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {[
-                { name: 'Friendly', desc: 'Warm, prompts and encouraging feedback.' },
-                { name: 'Neutral', desc: 'Professional, balanced, and focused on direct feedback.' },
-                { name: 'Tough / Stress test', desc: 'Direct challenges, pressure, and deeper probing.' },
+                { name: 'Amigable', desc: 'Cálido, ofrece guía y retroalimentación alentadora.' },
+                { name: 'Neutral', desc: 'Profesional, equilibrado y directo en el feedback.' },
+                { name: 'Exigente / Estrés', desc: 'Preguntas incisivas, mayor presión y repreguntas.' },
               ].map((item) => (
                 <div
                   key={item.name}
                   onClick={() => setTone(item.name)}
                   className={`cursor-pointer rounded-xl border p-4 transition ${
                     tone === item.name
-                      ? 'border-blue-500 bg-blue-600/10'
-                      : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                      ? 'border-blue-600 bg-blue-50/60 ring-1 ring-blue-600'
+                      : 'border-slate-200 bg-slate-50 hover:border-slate-300'
                   }`}
                 >
-                  <p className="text-sm font-semibold mb-1">{item.name}</p>
-                  <p className="text-xs text-slate-400">{item.desc}</p>
+                  <p className="text-sm font-semibold text-slate-900 mb-1">{item.name}</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="flex items-center justify-between pt-4">
-            <span className="text-xs text-slate-400">⚡ About 15-20 min &bull; 4-5 behavioral questions</span>
+          {/* Botón Acción */}
+          <div className="flex items-center justify-between pt-2">
+            <span className="text-xs text-slate-500">⚡ ~15-20 min &bull; 4-5 preguntas conductuales</span>
             <button
               type="submit"
-              className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 hover:bg-blue-500 transition"
+              className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition"
             >
-              Start Simulation &rarr;
+              Iniciar Simulación &rarr;
             </button>
           </div>
         </form>

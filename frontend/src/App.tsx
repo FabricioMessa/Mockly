@@ -8,6 +8,8 @@ import { PerfilPago } from './pages/PerfilPago'
 import { PlaceholderPage } from './pages/PlaceholderPage'
 import { Register } from './pages/Register'
 import { SalaSimulacro } from './pages/SalaSimulacro'
+import { SetupInterview } from './pages/SetupInterview'
+import { FeedbackReport } from './pages/FeedbackReport'
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/simulacro" element={<SalaSimulacro />} />
+        <Route path="/setup" element={<SetupInterview />} />
+        <Route path="/feedback" element={<FeedbackReport />} />
 
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<Dashboard />} />

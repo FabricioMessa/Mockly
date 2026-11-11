@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { RequireAuth } from './components/auth/RequireAuth'
 import { AppShell } from './components/layout/AppShell'
 import { Dashboard } from './pages/Dashboard'
 import { DesignSystem } from './pages/DesignSystem'
@@ -18,44 +19,47 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/simulacro" element={<SalaSimulacro />} />
-        <Route path="/setup" element={<SetupInterview />} />
-        <Route path="/feedback" element={<FeedbackReport />} />
 
-        <Route element={<AppShell />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route
-            path="/entrevistas"
-            element={
-              <PlaceholderPage
-                title="Entrevistas"
-                description="Historial de simulacros y acceso a la sala en vivo."
-                owner="Fase 2"
-              />
-            }
-          />
-          <Route
-            path="/progreso"
-            element={
-              <PlaceholderPage
-                title="Progreso"
-                description="Métricas, puntajes y evolución del usuario."
-                owner="Fase 2"
-              />
-            }
-          />
-          <Route
-            path="/recursos"
-            element={
-              <PlaceholderPage
-                title="Recursos"
-                description="Guías y material de apoyo para las entrevistas."
-                owner="Fase 2"
-              />
-            }
-          />
-          <Route path="/perfil" element={<PerfilPago />} />
-          <Route path="/design-system" element={<DesignSystem />} />
+        <Route element={<RequireAuth />}>
+          <Route path="/simulacro" element={<SalaSimulacro />} />
+          <Route path="/setup" element={<SetupInterview />} />
+          <Route path="/feedback" element={<FeedbackReport />} />
+
+          <Route element={<AppShell />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              path="/entrevistas"
+              element={
+                <PlaceholderPage
+                  title="Entrevistas"
+                  description="Historial de simulacros y acceso a la sala en vivo."
+                  owner="Fase 2"
+                />
+              }
+            />
+            <Route
+              path="/progreso"
+              element={
+                <PlaceholderPage
+                  title="Progreso"
+                  description="Métricas, puntajes y evolución del usuario."
+                  owner="Fase 2"
+                />
+              }
+            />
+            <Route
+              path="/recursos"
+              element={
+                <PlaceholderPage
+                  title="Recursos"
+                  description="Guías y material de apoyo para las entrevistas."
+                  owner="Fase 2"
+                />
+              }
+            />
+            <Route path="/perfil" element={<PerfilPago />} />
+            <Route path="/design-system" element={<DesignSystem />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<NotFound />} />

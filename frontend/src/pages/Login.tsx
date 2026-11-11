@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { DEMO_CREDENTIALS, login } from '../lib/auth'
 
 export function Login() {
   const navigate = useNavigate()
@@ -17,19 +18,7 @@ export function Login() {
     setTimeout(() => {
       setLoading(false)
 
-      // Leemos la "base de datos" local simulada
-      const savedUserStr = localStorage.getItem('mockly_user')
-      
-      if (!savedUserStr) {
-        setError('No hay cuentas registradas. Por favor regístrate primero.')
-        return
-      }
-
-      const savedUser = JSON.parse(savedUserStr)
-
-      // Verificación de credenciales
-      if (savedUser.email === email && savedUser.password === password) {
-        localStorage.setItem('mockly_token', 'session_active_123')
+      if (login(email, password)) {
         navigate('/dashboard')
       } else {
         setError('Correo o contraseña incorrectos.')
@@ -48,6 +37,24 @@ export function Login() {
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-950 p-1 text-center text-sm font-medium mb-6 border border-slate-800">
           <button className="rounded-lg bg-blue-600 py-2 text-white shadow">Iniciar sesión</button>
           <Link to="/register" className="rounded-lg py-2 text-slate-400 hover:text-white transition">Crear cuenta</Link>
+        </div>
+
+        <div className="mb-4 rounded-lg border border-blue-500/20 bg-blue-500/10 p-3 text-xs text-blue-200">
+          <p>
+            Cuenta demo:{' '}
+            <span className="font-mono">{DEMO_CREDENTIALS.email}</span> /{' '}
+            <span className="font-mono">{DEMO_CREDENTIALS.password}</span>
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail(DEMO_CREDENTIALS.email)
+              setPassword(DEMO_CREDENTIALS.password)
+            }}
+            className="mt-1 font-semibold text-blue-300 hover:underline"
+          >
+            Usar credenciales demo
+          </button>
         </div>
 
         {error && (

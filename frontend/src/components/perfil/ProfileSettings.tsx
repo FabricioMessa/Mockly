@@ -18,6 +18,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { logout } from '../../lib/auth'
 import { cn } from '../../lib/cn'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -112,7 +113,7 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
   const [notifications, setNotifications] = useState(true)
 
   const handleLogout = () => {
-    localStorage.removeItem('mockly_token')
+    logout()
     navigate('/login')
   }
 

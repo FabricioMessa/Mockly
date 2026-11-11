@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { saveUser, startSession } from '../lib/auth'
 
 export function Register() {
   const navigate = useNavigate()
@@ -41,18 +42,11 @@ export function Register() {
 
     setLoading(true)
     setTimeout(() => {
-      // Simulando base de datos guardando en el navegador
-      const existingUser = localStorage.getItem('mockly_user')
-      if (existingUser) {
-        // Opcional: Podrías manejar múltiples usuarios, pero para prueba simple guardamos uno solo
-      }
-
-      const userData = { fullName, email, password }
-      localStorage.setItem('mockly_user', JSON.stringify(userData))
-      localStorage.setItem('mockly_token', 'session_active_123')
+      saveUser({ fullName, email, password })
+      startSession()
 
       setLoading(false)
-      navigate('/dashboard') // Te lleva al dashboard
+      navigate('/dashboard')
     }, 800)
   }
 

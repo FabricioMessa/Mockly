@@ -1,15 +1,61 @@
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Sparkles } from 'lucide-react'
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { fetchQuestions } from '../lib/api'
+import type { Question } from '../lib/api'
+import { saveQuestions, saveSetup } from '../lib/interviewStorage'
+
+const difficultyMap: Record<string, string> = {
+  Fácil: 'facil',
+  Intermedio: 'intermedio',
+  Difícil: 'dificil',
+}
+
+const toneMap: Record<string, string> = {
+  Amigable: 'amigable',
+  Neutral: 'neutral',
+  'Exigente / Estrés': 'exigente',
+}
 
 export function SetupInterview() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const mode =
+    (location.state as { mode?: string } | null)?.mode ?? 'laboral'
   const [role, setRole] = useState('Junior Software Engineer')
   const [difficulty, setDifficulty] = useState('Intermedio')
   const [tone, setTone] = useState('Neutral')
+  const [aiQuestions, setAiQuestions] = useState<Question[]>([])
+  const [generating, setGenerating] = useState(false)
+  const [aiError, setAiError] = useState('')
+
+  const handleGenerate = async () => {
+    setGenerating(true)
+    setAiError('')
+
+    try {
+      const result = await fetchQuestions({
+        mode,
+        role,
+        difficulty: difficultyMap[difficulty] ?? 'intermedio',
+        tone: toneMap[tone] ?? 'neutral',
+        count: 3,
+      })
+      setAiQuestions(result.questions)
+      saveQuestions(result.questions)
+      saveSetup({ mode, role, difficulty, tone })
+    } catch {
+      setAiError(
+        'No se pudo conectar con la IA. Verifica que el backend esté activo.',
+      )
+    } finally {
+      setGenerating(false)
+    }
+  }
 
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault()
+    saveSetup({ mode, role, difficulty, tone })
     navigate('/simulacro')
   }
 
@@ -126,6 +172,58 @@ export function SetupInterview() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Preguntas con IA */}
+          <div className="rounded-2xl border border-blue-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <Sparkles className="size-4 text-blue-600" />
+                  Preguntas generadas por IA
+                </p>
+                <p className="mt-1 text-xs text-slate-500">
+                  Gemini generará 3 preguntas según tu rol, dificultad y tono.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={generating}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-50"
+              >
+                {generating
+                  ? 'Generando...'
+                  : aiQuestions.length > 0
+                    ? 'Regenerar'
+                    : 'Generar preguntas'}
+              </button>
+            </div>
+
+            {aiError && (
+              <p className="mt-3 text-xs font-medium text-red-600">{aiError}</p>
+            )}
+
+            {aiQuestions.length > 0 && (
+              <ol className="mt-4 space-y-2">
+                {aiQuestions.map((question, index) => (
+                  <li
+                    key={question.id}
+                    className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700"
+                  >
+                    <span className="font-semibold text-blue-600">
+                      {index + 1}.
+                    </span>{' '}
+                    {question.text}
+                    {question.focus && (
+                      <span className="ml-2 text-[10px] uppercase tracking-wide text-slate-400">
+                        {question.focus}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )}
           </div>
 
           {/* Botón Acción */}

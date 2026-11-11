@@ -34,7 +34,7 @@ export function ModeCardMobile({ mode }: { mode: Mode }) {
         size="sm"
         variant={mode.buttonVariant}
         rightIcon={<ChevronRight className="size-4" />}
-        onClick={() => navigate('/setup')}
+        onClick={() => navigate('/setup', { state: { mode: mode.key } })}
       >
         Empezar
       </Button>

@@ -10,11 +10,13 @@ import {
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AudioWave } from '../components/simulacro/AudioWave'
+import { SalaTexto } from '../components/simulacro/SalaTexto'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { Logo } from '../components/ui/Logo'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { cn } from '../lib/cn'
+import { readQuestions } from '../lib/interviewStorage'
 
 type Role = 'ai' | 'user'
 type Phase = 'idle' | 'listening' | 'processing' | 'done'
@@ -96,7 +98,7 @@ function SummaryStat({ label, value }: { label: string; value: string }) {
   )
 }
 
-export function SalaSimulacro() {
+function SalaSimulacroClasica() {
   const navigate = useNavigate()
   const [phase, setPhase] = useState<Phase>('idle')
   const [questionIndex, setQuestionIndex] = useState(0)
@@ -468,4 +470,14 @@ export function SalaSimulacro() {
       )}
     </div>
   )
+}
+
+export function SalaSimulacro() {
+  const [questions] = useState(() => readQuestions())
+
+  if (questions.length > 0) {
+    return <SalaTexto questions={questions} />
+  }
+
+  return <SalaSimulacroClasica />
 }

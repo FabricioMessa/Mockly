@@ -312,11 +312,14 @@ export function SalaSimulacro() {
             </div>
 
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
-              <Button onClick={() => navigate('/dashboard')}>
-                Volver al inicio
+              <Button onClick={() => navigate('/feedback')}>
+                Ver mi reporte
               </Button>
               <Button variant="outline" onClick={restart}>
                 Repetir entrevista
+              </Button>
+              <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+                Volver al inicio
               </Button>
             </div>
           </Card>

@@ -1,10 +1,11 @@
+import { ArrowLeft } from 'lucide-react'
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export function SetupInterview() {
   const navigate = useNavigate()
   const [role, setRole] = useState('Junior Software Engineer')
-  const [difficulty, setDifficulty] = useState('Medium')
+  const [difficulty, setDifficulty] = useState('Intermedio')
   const [tone, setTone] = useState('Neutral')
 
   const handleStart = (e: React.FormEvent) => {
@@ -15,6 +16,14 @@ export function SetupInterview() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
       <div className="max-w-4xl mx-auto space-y-6">
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center gap-1.5 text-sm text-slate-600 transition hover:text-slate-900"
+        >
+          <ArrowLeft className="size-4" />
+          Volver al inicio
+        </Link>
+
         <header className="mb-6">
           <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Interviews &bull; Nueva sesión</span>
           <h1 className="text-3xl font-bold text-slate-900 mt-1">Configura tu Entrevista</h1>
@@ -65,7 +74,7 @@ export function SetupInterview() {
             <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <label className="text-sm font-semibold text-slate-900 block mb-3">Dificultad</label>
               <div className="grid grid-cols-3 gap-2">
-                {['Fácil', 'Medium', 'Difícil'].map((lvl) => (
+                {['Fácil', 'Intermedio', 'Difícil'].map((lvl) => (
                   <button
                     key={lvl}
                     type="button"
@@ -96,7 +105,16 @@ export function SetupInterview() {
               ].map((item) => (
                 <div
                   key={item.name}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={tone === item.name}
                   onClick={() => setTone(item.name)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault()
+                      setTone(item.name)
+                    }
+                  }}
                   className={`cursor-pointer rounded-xl border p-4 transition ${
                     tone === item.name
                       ? 'border-blue-600 bg-blue-50/60 ring-1 ring-blue-600'

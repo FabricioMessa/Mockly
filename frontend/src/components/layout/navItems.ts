@@ -1,16 +1,23 @@
 import { BookOpen, Home, Mic, TrendingUp, User } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
+export type NavLabelKey =
+  | 'home'
+  | 'interviews'
+  | 'progress'
+  | 'resources'
+  | 'profile'
+
 export interface NavItem {
-  label: string
+  labelKey: NavLabelKey
   to: string
   icon: LucideIcon
 }
 
 export const navItems: NavItem[] = [
-  { label: 'Inicio', to: '/dashboard', icon: Home },
-  { label: 'Entrevistas', to: '/entrevistas', icon: Mic },
-  { label: 'Progreso', to: '/progreso', icon: TrendingUp },
-  { label: 'Recursos', to: '/recursos', icon: BookOpen },
-  { label: 'Perfil', to: '/perfil', icon: User },
+  { labelKey: 'home', to: '/dashboard', icon: Home },
+  { labelKey: 'interviews', to: '/entrevistas', icon: Mic },
+  { labelKey: 'progress', to: '/progreso', icon: TrendingUp },
+  { labelKey: 'resources', to: '/recursos', icon: BookOpen },
+  { labelKey: 'profile', to: '/perfil', icon: User },
 ]

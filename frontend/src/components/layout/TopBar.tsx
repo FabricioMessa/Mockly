@@ -1,7 +1,10 @@
 import { Search } from 'lucide-react'
+import { useTranslation } from '../../lib/i18n'
 import { UserActions } from './UserActions'
 
 export function TopBar() {
+  const t = useTranslation()
+
   return (
     <header className="sticky top-0 z-30 hidden items-center justify-between gap-6 border-b border-border bg-surface px-8 py-3 lg:flex">
       <div className="relative w-full max-w-md">
@@ -12,8 +15,8 @@ export function TopBar() {
         />
         <input
           type="search"
-          placeholder="Buscar entrevistas, temas o recursos..."
-          aria-label="Buscar entrevistas, temas o recursos"
+          placeholder={t.topbar.search}
+          aria-label={t.topbar.searchAria}
           className="h-11 w-full rounded-pill border border-border bg-background pl-10 pr-4 text-body text-content-primary placeholder:text-content-secondary focus-visible:border-primary"
         />
       </div>

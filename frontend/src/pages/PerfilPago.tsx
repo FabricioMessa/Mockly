@@ -5,10 +5,12 @@ import { PlanPayment } from '../components/perfil/PlanPayment'
 import { ProfileSettings } from '../components/perfil/ProfileSettings'
 import { StatChip } from '../components/ui/StatChip'
 import { cn } from '../lib/cn'
+import { useTranslation } from '../lib/i18n'
 
 type MobileView = 'perfil' | 'planes'
 
 export function PerfilPago() {
+  const t = useTranslation()
   const [mobileView, setMobileView] = useState<MobileView>('perfil')
 
   return (
@@ -33,29 +35,31 @@ export function PerfilPago() {
           </Link>
         )}
         <h1 className="text-h2">
-          {mobileView === 'planes' ? 'Mejorar a Pro' : 'Perfil y configuración'}
+          {mobileView === 'planes'
+            ? t.settings.upgradeTitle
+            : t.settings.mobileTitle}
         </h1>
       </div>
 
       <div className="hidden items-center justify-between gap-4 lg:flex">
-        <h1>Ajustes</h1>
+        <h1>{t.settings.title}</h1>
         <div className="flex gap-3">
           <StatChip
             icon={<CalendarDays className="size-5" strokeWidth={1.75} />}
             value={12}
-            label="entrevistas"
+            label={t.stats.interviews}
             tone="primary"
           />
           <StatChip
             icon={<Award className="size-5" strokeWidth={1.75} />}
             value={84}
-            label="puntaje"
+            label={t.stats.score}
             tone="accent"
           />
           <StatChip
             icon={<Flame className="size-5" strokeWidth={1.75} />}
             value={7}
-            label="días de racha"
+            label={t.stats.streak}
             tone="warning"
           />
         </div>

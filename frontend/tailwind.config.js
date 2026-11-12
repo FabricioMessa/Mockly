@@ -1,23 +1,24 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{ts,tsx}'],
   theme: {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#4F46E5',
-          dark: '#4338CA',
+          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
+          dark: 'rgb(var(--color-primary-dark) / <alpha-value>)',
         },
-        accent: '#06B6D4',
-        success: '#22C55E',
-        warning: '#F59E0B',
-        error: '#EF4444',
-        background: '#F8FAFC',
-        surface: '#FFFFFF',
-        border: '#E2E8F0',
+        accent: 'rgb(var(--color-accent) / <alpha-value>)',
+        success: 'rgb(var(--color-success) / <alpha-value>)',
+        warning: 'rgb(var(--color-warning) / <alpha-value>)',
+        error: 'rgb(var(--color-error) / <alpha-value>)',
+        background: 'rgb(var(--color-background) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        border: 'rgb(var(--color-border) / <alpha-value>)',
         content: {
-          primary: '#0F172A',
-          secondary: '#64748B',
+          primary: 'rgb(var(--color-content-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-content-secondary) / <alpha-value>)',
         },
       },
       fontFamily: {

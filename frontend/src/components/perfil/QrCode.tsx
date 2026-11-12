@@ -49,7 +49,7 @@ export function QrCode({ label }: { label: 'yape' | 'plin' }) {
         {cells.map(({ x, y, dark }) => (
           <span
             key={`${x}-${y}`}
-            className={cn('aspect-square', dark ? 'bg-content-primary' : 'bg-white')}
+            className={cn('aspect-square', dark ? 'bg-slate-900' : 'bg-white')}
           />
         ))}
       </div>

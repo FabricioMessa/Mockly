@@ -6,6 +6,7 @@ import { ModeCardDesktop } from '../components/dashboard/ModeCardDesktop'
 import { ModeCardMobile } from '../components/dashboard/ModeCardMobile'
 import { modes } from '../components/dashboard/modes'
 import { WeeklyProgress } from '../components/dashboard/WeeklyProgress'
+import { InstallBanner } from '../components/pwa/InstallBanner'
 import { StatChip } from '../components/ui/StatChip'
 
 export function Dashboard() {
@@ -15,6 +16,8 @@ export function Dashboard() {
 
       <div className="lg:grid lg:grid-cols-[1fr_320px] lg:items-start lg:gap-6">
         <div className="flex flex-col gap-6">
+          <InstallBanner />
+
           <header>
             <h1>Hola, Andrea</h1>
             <p className="mt-1 text-body text-content-secondary lg:hidden">

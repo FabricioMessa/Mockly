@@ -119,6 +119,12 @@ const es = {
     close: 'Cerrar',
     cancel: 'Cancelar',
   },
+  pwa: {
+    title: 'Instala Mockly',
+    description: 'Agrega la app a tu pantalla de inicio y úsala como una app.',
+    action: 'Instalar app',
+    dismiss: 'Cerrar',
+  },
 }
 
 export type Translation = typeof es
@@ -240,6 +246,12 @@ const en: Translation = {
   common: {
     close: 'Close',
     cancel: 'Cancel',
+  },
+  pwa: {
+    title: 'Install Mockly',
+    description: 'Add the app to your home screen and use it like a native app.',
+    action: 'Install app',
+    dismiss: 'Close',
   },
 }
 

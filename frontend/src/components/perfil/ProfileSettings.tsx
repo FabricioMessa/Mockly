@@ -33,6 +33,7 @@ import { AboutModal } from './AboutModal'
 import { HelpModal } from './HelpModal'
 import { PublicProfileModal } from './PublicProfileModal'
 import { SecurityModal } from './SecurityModal'
+import { VoiceModal } from './VoiceModal'
 
 interface SettingsRowProps {
   icon: LucideIcon
@@ -68,10 +69,12 @@ function SettingsRow({
       >
         {label}
       </span>
-      <span className="ml-auto flex items-center gap-2">
+      <span className="ml-auto flex min-w-0 items-center gap-2">
         {trailing ??
           (value && (
-            <span className="text-caption text-content-secondary">{value}</span>
+            <span className="truncate text-caption text-content-secondary">
+              {value}
+            </span>
           ))}
         {!trailing && (
           <ChevronRight
@@ -142,7 +145,7 @@ function ThemeToggle({ theme, onChange, labels }: ThemeToggleProps) {
   )
 }
 
-type ModalName = 'public' | 'security' | 'help' | 'about' | null
+type ModalName = 'public' | 'security' | 'help' | 'about' | 'voice' | null
 
 export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
   const navigate = useNavigate()
@@ -157,6 +160,7 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
     timezone,
     setTimezone,
     publicProfile,
+    voiceName,
   } = useAppSettings()
   const [modal, setModal] = useState<ModalName>(null)
 
@@ -223,7 +227,12 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
               />
             }
           />
-          <SettingsRow icon={Mic} label="Voz del reclutador" value="Femenina" />
+          <SettingsRow
+            icon={Mic}
+            label={t.settings.recruiterVoice}
+            value={voiceName || t.voice.default}
+            onClick={() => setModal('voice')}
+          />
           <SettingsRow
             icon={theme === 'dark' ? Moon : Sun}
             label={t.settings.theme}
@@ -336,6 +345,7 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
       />
       <HelpModal open={modal === 'help'} onClose={() => setModal(null)} />
       <AboutModal open={modal === 'about'} onClose={() => setModal(null)} />
+      <VoiceModal open={modal === 'voice'} onClose={() => setModal(null)} />
     </>
   )
 }

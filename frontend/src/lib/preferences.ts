@@ -12,7 +12,11 @@ export interface Preferences {
   theme: Theme
   timezone: Timezone
   publicProfile: boolean
+  voiceName: string
+  speechRate: number
 }
+
+export const SPEECH_RATES = [0.8, 0.9, 1, 1.1, 1.2]
 
 export const DEFAULT_PREFERENCES: Preferences = {
   language: 'es',
@@ -20,6 +24,8 @@ export const DEFAULT_PREFERENCES: Preferences = {
   theme: 'light',
   timezone: 'America/Lima',
   publicProfile: false,
+  voiceName: '',
+  speechRate: 1,
 }
 
 const STORAGE_KEY = 'mockly_preferences'
@@ -80,6 +86,13 @@ export function readPreferences(): Preferences {
         typeof parsed.publicProfile === 'boolean'
           ? parsed.publicProfile
           : DEFAULT_PREFERENCES.publicProfile,
+      voiceName:
+        typeof parsed.voiceName === 'string'
+          ? parsed.voiceName
+          : DEFAULT_PREFERENCES.voiceName,
+      speechRate: SPEECH_RATES.includes(Number(parsed.speechRate))
+        ? Number(parsed.speechRate)
+        : DEFAULT_PREFERENCES.speechRate,
     }
   } catch {
     return DEFAULT_PREFERENCES

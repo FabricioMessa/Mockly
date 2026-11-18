@@ -1,6 +1,7 @@
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAppSettings } from '../context/appSettings'
 import { fetchQuestions } from '../lib/api'
 import type { Question } from '../lib/api'
 import { saveQuestions, saveSetup } from '../lib/interviewStorage'
@@ -20,6 +21,7 @@ const toneMap: Record<string, string> = {
 export function SetupInterview() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { language } = useAppSettings()
   const mode =
     (location.state as { mode?: string } | null)?.mode ?? 'laboral'
   const [role, setRole] = useState('Junior Software Engineer')
@@ -40,6 +42,7 @@ export function SetupInterview() {
         difficulty: difficultyMap[difficulty] ?? 'intermedio',
         tone: toneMap[tone] ?? 'neutral',
         count: 3,
+        language,
       })
       setAiQuestions(result.questions)
       saveQuestions(result.questions)

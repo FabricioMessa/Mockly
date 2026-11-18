@@ -8,6 +8,8 @@ export interface AppSettingsContextValue extends Preferences {
   setTheme: (theme: Theme) => void
   setTimezone: (timezone: Timezone) => void
   setPublicProfile: (publicProfile: boolean) => void
+  setVoiceName: (voiceName: string) => void
+  setSpeechRate: (speechRate: number) => void
 }
 
 export const AppSettingsContext =

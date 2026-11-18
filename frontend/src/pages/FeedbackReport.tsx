@@ -1,5 +1,9 @@
+import { Square, Volume2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAppSettings } from '../context/appSettings'
+import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import type { InterviewEvaluation } from '../lib/api'
+import { useTranslation } from '../lib/i18n'
 import { readEvaluation } from '../lib/interviewStorage'
 
 const fallbackEvaluation: InterviewEvaluation = {
@@ -32,10 +36,24 @@ const fallbackEvaluation: InterviewEvaluation = {
 
 export function FeedbackReport() {
   const navigate = useNavigate()
+  const t = useTranslation()
+  const { language, voiceName, speechRate } = useAppSettings()
+  const { supported: ttsSupported, speaking, speak, stop } =
+    useSpeechSynthesis({ language, voiceName, rate: speechRate })
   const evaluation = readEvaluation() ?? fallbackEvaluation
   const isAi = evaluation.provider === 'gemini'
   const keywordHint =
     evaluation.strengths.slice(0, 3).join(', ') || 'STAR, métricas, liderazgo'
+
+  const feedbackSpeech = [
+    `${t.feedback.score}: ${evaluation.score} ${t.feedback.outOf} 100.`,
+    evaluation.summary,
+    `${t.feedback.star}. ${t.feedback.situation}: ${evaluation.star.situation}`,
+    `${t.feedback.task}: ${evaluation.star.task}`,
+    `${t.feedback.action}: ${evaluation.star.action}`,
+    `${t.feedback.result}: ${evaluation.star.result}`,
+    `${t.feedback.recommendations}: ${evaluation.recommendations.join(' ')}`,
+  ].join(' ')
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
@@ -80,6 +98,21 @@ export function FeedbackReport() {
                   </strong>
                 </span>
               </div>
+
+              {ttsSupported && (
+                <button
+                  type="button"
+                  onClick={() => (speaking ? stop() : speak(feedbackSpeech))}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  {speaking ? (
+                    <Square className="size-3.5" strokeWidth={1.75} />
+                  ) : (
+                    <Volume2 className="size-3.5" strokeWidth={1.75} />
+                  )}
+                  {speaking ? t.feedback.stop : t.feedback.listen}
+                </button>
+              )}
             </div>
           </div>
         </div>

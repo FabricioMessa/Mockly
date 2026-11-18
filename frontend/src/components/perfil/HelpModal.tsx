@@ -16,6 +16,7 @@ export function HelpModal({ open, onClose }: HelpModalProps) {
     { question: t.help.q2, answer: t.help.a2 },
     { question: t.help.q3, answer: t.help.a3 },
     { question: t.help.q4, answer: t.help.a4 },
+    { question: t.help.q5, answer: t.help.a5 },
   ]
 
   return (

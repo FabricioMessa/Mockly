@@ -35,10 +35,15 @@ function formatTime(total: number) {
 
 const STT_ERROR_KEYS: Record<
   string,
-  'notAllowed' | 'noSpeech' | 'network' | 'audioCapture' | 'generic'
+  | 'notAllowed'
+  | 'serviceUnavailable'
+  | 'noSpeech'
+  | 'network'
+  | 'audioCapture'
+  | 'generic'
 > = {
   'not-allowed': 'notAllowed',
-  'service-not-allowed': 'notAllowed',
+  'service-not-allowed': 'serviceUnavailable',
   'no-speech': 'noSpeech',
   network: 'network',
   'audio-capture': 'audioCapture',

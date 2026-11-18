@@ -73,6 +73,9 @@ const es = {
     noVoices: 'No se encontraron voces en este dispositivo.',
     unsupported: 'Tu navegador no soporta síntesis de voz.',
     sample: 'Hola, soy tu entrevistador de Mockly. ¿Empezamos?',
+    qualityTitle: '¿La voz suena robótica?',
+    qualityHint:
+      'Elige una voz Enhanced/Premium del sistema. En macOS: Ajustes del Sistema → Accesibilidad → Contenido hablado → Voz del sistema → Gestionar voces. Descarga una voz en español (Enhanced/Premium) y vuelve a abrir la app.',
   },
   interview: {
     title: 'Entrevista con IA',
@@ -105,9 +108,13 @@ const es = {
     evaluationError:
       'No se pudo evaluar con la IA. Revisa el backend e inténtalo de nuevo.',
     errors: {
-      notAllowed: 'No se concedió permiso al micrófono.',
+      notAllowed:
+        'No se concedió permiso al micrófono. Revisa los permisos del sitio.',
+      serviceUnavailable:
+        'Este navegador no tiene disponible el servicio de dictado. Usa Chrome o Edge para hablar, o escribe tu respuesta.',
       noSpeech: 'No se detectó voz. Intenta de nuevo.',
-      network: 'Error de red al reconocer la voz.',
+      network:
+        'No se pudo conectar con el servicio de dictado. Usa Chrome o Edge, revisa tu conexión o escribe tu respuesta.',
       audioCapture: 'No se encontró un micrófono.',
       generic: 'No se pudo usar el micrófono.',
     },
@@ -165,6 +172,8 @@ const es = {
     a3: 'Desde Perfil → Ajustes puedes gestionar tu plan. En producción el cobro se hará con Culqi.',
     q4: '¿Cómo cambio mi contraseña?',
     a4: 'Abre Seguridad en esta misma pantalla y actualiza tu contraseña.',
+    q5: '¿Por qué no funciona el micrófono en algunos navegadores?',
+    a5: 'El dictado usa el servicio de reconocimiento del navegador. En algunos navegadores basados en Chromium, como Dia, ese servicio no está disponible y aparece un error de red. Usa Chrome o Edge para dictar, o escribe tu respuesta.',
   },
   about: {
     title: 'Acerca de Mockly',
@@ -262,6 +271,9 @@ const en: Translation = {
     noVoices: 'No voices were found on this device.',
     unsupported: 'Your browser does not support speech synthesis.',
     sample: 'Hi, I am your Mockly interviewer. Shall we start?',
+    qualityTitle: 'Does the voice sound robotic?',
+    qualityHint:
+      'Choose an Enhanced/Premium system voice. On macOS: System Settings → Accessibility → Spoken Content → System Voice → Manage Voices. Download a Spanish voice (Enhanced/Premium) and reopen the app.',
   },
   interview: {
     title: 'AI Interview',
@@ -294,9 +306,13 @@ const en: Translation = {
     evaluationError:
       'Could not evaluate with AI. Check the backend and try again.',
     errors: {
-      notAllowed: 'Microphone permission was denied.',
+      notAllowed:
+        'Microphone permission was denied. Check the site permissions.',
+      serviceUnavailable:
+        "This browser's dictation service is unavailable. Use Chrome or Edge to speak, or type your answer.",
       noSpeech: 'No speech detected. Try again.',
-      network: 'Network error while recognizing speech.',
+      network:
+        'Could not connect to the dictation service. Use Chrome or Edge, check your connection, or type your answer.',
       audioCapture: 'No microphone found.',
       generic: 'Could not use the microphone.',
     },
@@ -354,6 +370,8 @@ const en: Translation = {
     a3: 'From Profile → Settings you can manage your plan. In production, billing will be handled with Culqi.',
     q4: 'How do I change my password?',
     a4: 'Open Security on this screen and update your password.',
+    q5: "Why doesn't the microphone work in some browsers?",
+    a5: "Dictation relies on the browser's speech recognition service. In some Chromium-based browsers, such as Dia, that service is unavailable and a network error appears. Use Chrome or Edge to dictate, or type your answer.",
   },
   about: {
     title: 'About Mockly',

@@ -3,6 +3,7 @@ import type { Language } from '../lib/preferences'
 import {
   isSpeechSynthesisSupported,
   pickSpeechVoice,
+  sortSpeechVoices,
   speechLocale,
 } from '../lib/speech'
 
@@ -34,16 +35,10 @@ export function useSpeechSynthesis({
     }
   }, [supported])
 
-  const orderedVoices = useMemo(() => {
-    const prefix = language === 'en' ? 'en' : 'es'
-    const matching = voices.filter((voice) =>
-      voice.lang.toLowerCase().startsWith(prefix),
-    )
-    const rest = voices.filter(
-      (voice) => !voice.lang.toLowerCase().startsWith(prefix),
-    )
-    return [...matching, ...rest]
-  }, [voices, language])
+  const orderedVoices = useMemo(
+    () => sortSpeechVoices(voices, language),
+    [voices, language],
+  )
 
   const selectedVoice = useMemo(
     () => pickSpeechVoice(orderedVoices, voiceName, language),

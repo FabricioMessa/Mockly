@@ -101,6 +101,15 @@ export function VoiceModal({ open, onClose }: VoiceModalProps) {
             </select>
           </div>
 
+          <details className="mt-3 rounded-input border border-border bg-background p-3">
+            <summary className="cursor-pointer text-caption font-medium text-content-primary">
+              {t.voice.qualityTitle}
+            </summary>
+            <p className="mt-2 text-caption leading-relaxed text-content-secondary">
+              {t.voice.qualityHint}
+            </p>
+          </details>
+
           <div className="mt-4 flex gap-2">
             {speaking ? (
               <Button

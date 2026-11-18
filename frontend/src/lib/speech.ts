@@ -65,6 +65,91 @@ export function speechLocale(language: Language): string {
   return language === 'en' ? 'en-US' : 'es-PE'
 }
 
+const PREFERRED_VOICE_HINTS = [
+  'mónica',
+  'monica',
+  'paulina',
+  'jorge',
+  'diego',
+  'marisol',
+  'juan',
+  'carlos',
+  'laura',
+  'sabina',
+  'helena',
+  'pablo',
+  'raúl',
+  'raul',
+  'google español',
+  'google us english',
+  'samantha',
+  'aria',
+  'jenny',
+  'guy',
+  'alex',
+  'daniel',
+  'karen',
+  'zira',
+  'david',
+  'mark',
+  'enhanced',
+  'premium',
+  'natural',
+  'neural',
+]
+
+const NOVELTY_VOICE_HINTS = [
+  'eddy',
+  'flo',
+  'grandma',
+  'grandpa',
+  'rocko',
+  'sandy',
+  'shelley',
+  'albert',
+  'fred',
+  'bad news',
+  'bahh',
+  'bells',
+  'boing',
+  'bubbles',
+  'cellos',
+  'good news',
+  'jester',
+  'organ',
+  'superstar',
+  'trinoids',
+  'whisper',
+  'wobble',
+  'zarvox',
+  'kathy',
+  'ralph',
+]
+
+function voiceScore(voice: SpeechSynthesisVoice, language: Language): number {
+  const name = voice.name.toLowerCase()
+  const prefix = language === 'en' ? 'en' : 'es'
+  const matchesLanguage = voice.lang.toLowerCase().startsWith(prefix)
+
+  let score = matchesLanguage ? 1000 : 0
+  if (voice.default) score += 5
+  if (voice.localService) score += 2
+  if (PREFERRED_VOICE_HINTS.some((hint) => name.includes(hint))) score += 40
+  if (NOVELTY_VOICE_HINTS.some((hint) => name.includes(hint))) score -= 80
+  return score
+}
+
+export function sortSpeechVoices(
+  voices: SpeechSynthesisVoice[],
+  language: Language,
+): SpeechSynthesisVoice[] {
+  return [...voices].sort((first, second) => {
+    const difference = voiceScore(second, language) - voiceScore(first, language)
+    if (difference !== 0) return difference
+    return first.name.localeCompare(second.name)
+  })
+}
+
 export function pickSpeechVoice(
   voices: SpeechSynthesisVoice[],
   voiceName: string,
@@ -75,10 +160,5 @@ export function pickSpeechVoice(
     if (exact) return exact
   }
 
-  const prefix = language === 'en' ? 'en' : 'es'
-  return (
-    voices.find((voice) => voice.lang.toLowerCase().startsWith(prefix)) ??
-    voices[0] ??
-    null
-  )
+  return sortSpeechVoices(voices, language)[0] ?? null
 }

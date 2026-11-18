@@ -85,8 +85,7 @@ const es = {
     interviewer: 'Entrevistador IA',
     focus: 'Enfoque',
     answer: 'Tu respuesta',
-    answerPlaceholder:
-      'Escribe tu respuesta o usa el micrófono. Usa el método STAR: situación, tarea, acción y resultado.',
+    answerPlaceholder: 'Escribe tu respuesta o usa el micrófono...',
     transcriptHint: 'Puedes corregir la transcripción antes de evaluar.',
     tip: 'Consejo: incluye resultados medibles.',
     next: 'Siguiente',
@@ -104,6 +103,15 @@ const es = {
       'Tu navegador no soporta dictado por voz. Escribe tu respuesta.',
     ttsUnsupported:
       'Tu navegador no soporta voz de la IA. Puedes leer el texto.',
+    showQuestion: 'Mostrar pregunta',
+    hideQuestion: 'Ocultar pregunta',
+    questionHidden:
+      'La pregunta está oculta. Toca «Mostrar pregunta» si no la escuchaste bien.',
+    aiReading: 'La IA está leyendo la pregunta...',
+    options: 'Opciones',
+    repeatQuestion: 'Repetir pregunta',
+    writeAnswer: 'Escribir respuesta',
+    sendAnswer: 'Enviar',
     answerRequired: 'Escribe o dicta tu respuesta antes de evaluar.',
     evaluationError:
       'No se pudo evaluar con la IA. Revisa el backend e inténtalo de nuevo.',
@@ -283,8 +291,7 @@ const en: Translation = {
     interviewer: 'AI interviewer',
     focus: 'Focus',
     answer: 'Your answer',
-    answerPlaceholder:
-      'Type your answer or use the microphone. Use the STAR method: situation, task, action and result.',
+    answerPlaceholder: 'Type your answer or use the microphone...',
     transcriptHint: 'You can edit the transcript before evaluating.',
     tip: 'Tip: include measurable results.',
     next: 'Next',
@@ -302,6 +309,15 @@ const en: Translation = {
       'Your browser does not support voice dictation. Please type your answer.',
     ttsUnsupported:
       'Your browser does not support AI voice. You can read the text.',
+    showQuestion: 'Show question',
+    hideQuestion: 'Hide question',
+    questionHidden:
+      'The question is hidden. Tap "Show question" if you missed it.',
+    aiReading: 'The AI is reading the question...',
+    options: 'Options',
+    repeatQuestion: 'Repeat question',
+    writeAnswer: 'Write answer',
+    sendAnswer: 'Send',
     answerRequired: 'Type or dictate your answer before evaluating.',
     evaluationError:
       'Could not evaluate with AI. Check the backend and try again.',

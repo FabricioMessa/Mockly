@@ -1,12 +1,4 @@
-import {
-  Check,
-  ChevronRight,
-  Clock,
-  Mic,
-  Sparkles,
-  Square,
-  Volume2,
-} from 'lucide-react'
+import { ChevronLeft, Clock, Eye, EyeOff } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAppSettings } from '../../context/appSettings'
@@ -15,13 +7,11 @@ import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis'
 import { evaluateAnswer } from '../../lib/api'
 import type { Question } from '../../lib/api'
 import { readSetup, saveEvaluation } from '../../lib/interviewStorage'
-import { cn } from '../../lib/cn'
 import { useTranslation } from '../../lib/i18n'
-import { AudioWave } from './AudioWave'
 import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
 import { Logo } from '../ui/Logo'
-import { ProgressBar } from '../ui/ProgressBar'
+import { AiOrb } from './AiOrb'
+import { InterviewComposer } from './InterviewComposer'
 
 interface SalaTextoProps {
   questions: Question[]
@@ -81,7 +71,9 @@ export function SalaTexto({ questions }: SalaTextoProps) {
   const [error, setError] = useState('')
   const [voiceStarted, setVoiceStarted] = useState(false)
   const [autoSpeak, setAutoSpeak] = useState(false)
+  const [showQuestion, setShowQuestion] = useState(false)
   const answerBaseRef = useRef('')
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
     const id = window.setInterval(() => setElapsed((value) => value + 1), 1000)
@@ -127,21 +119,40 @@ export function SalaTexto({ questions }: SalaTextoProps) {
     ? t.interview.errors[STT_ERROR_KEYS[sttError] ?? 'generic']
     : ''
 
+  const status = listening
+    ? t.interview.listening
+    : speaking
+      ? t.interview.speaking
+      : sttSupported
+        ? t.interview.tapMic
+        : t.interview.micUnsupported
+
   const handleStartVoice = () => {
     setVoiceStarted(true)
     setAutoSpeak(true)
+    setShowQuestion(false)
     setError('')
     if (ttsSupported) speak(currentQuestion.text)
   }
 
-  const handleTextOnly = () => {
+  const handleToggleQuestion = () => {
+    setShowQuestion((visible) => !visible)
+  }
+
+  const handleRepeatQuestion = () => {
+    if (ttsSupported) speak(currentQuestion.text)
+  }
+
+  const handleStopVoice = () => {
+    stopSpeaking()
+  }
+
+  const handleWrite = () => {
+    stopSpeaking()
+    stopListening()
     setVoiceStarted(true)
     setAutoSpeak(false)
     setError('')
-  }
-
-  const handleListenQuestion = () => {
-    if (ttsSupported) speak(currentQuestion.text)
   }
 
   const handleRecord = () => {
@@ -153,25 +164,11 @@ export function SalaTexto({ questions }: SalaTextoProps) {
     }
 
     stopSpeaking()
+    setVoiceStarted(true)
     setError('')
     answerBaseRef.current = currentAnswer
     resetRecognition()
     startListening()
-  }
-
-  const handleNext = () => {
-    abortRecognition()
-    stopSpeaking()
-    setError('')
-
-    const nextIndex = Math.min(index + 1, questions.length - 1)
-    setIndex(nextIndex)
-    answerBaseRef.current = answers[nextIndex] ?? ''
-    resetRecognition()
-
-    if (autoSpeak && ttsSupported) {
-      speak(questions[nextIndex].text)
-    }
   }
 
   const handleEvaluate = async () => {
@@ -203,27 +200,44 @@ export function SalaTexto({ questions }: SalaTextoProps) {
     }
   }
 
-  const status = listening
-    ? t.interview.listening
-    : speaking
-      ? t.interview.speaking
-      : sttSupported
-        ? t.interview.tapMic
-        : t.interview.micUnsupported
+  const handleSend = async () => {
+    if (!currentAnswer.trim()) {
+      setError(t.interview.answerRequired)
+      return
+    }
+
+    if (isLast) {
+      await handleEvaluate()
+      return
+    }
+
+    abortRecognition()
+    stopSpeaking()
+    setError('')
+
+    const nextIndex = index + 1
+    setIndex(nextIndex)
+    setShowQuestion(false)
+    answerBaseRef.current = answers[nextIndex] ?? ''
+    resetRecognition()
+
+    if (autoSpeak && ttsSupported) {
+      speak(questions[nextIndex].text)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-surface px-4 py-3 lg:px-8">
-        <Link to="/dashboard" className="flex items-center gap-3">
-          <Logo size={36} />
-          <div className="hidden sm:block">
-            <p className="text-label font-semibold text-content-primary">
-              {t.interview.title}
-            </p>
-            <p className="text-caption text-content-secondary">
-              {setup?.role ?? 'Product Manager'} · {setup?.mode ?? 'laboral'}
-            </p>
-          </div>
+    <div className="flex min-h-[100svh] flex-col bg-background">
+      <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-background/80 px-4 py-3 backdrop-blur lg:px-8">
+        <Link
+          to="/dashboard"
+          className="flex items-center gap-2 text-content-secondary transition-colors hover:text-content-primary"
+        >
+          <ChevronLeft className="size-5" strokeWidth={1.75} />
+          <Logo size={32} />
+          <span className="hidden text-label font-semibold text-content-primary sm:inline">
+            Mockly
+          </span>
         </Link>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -244,216 +258,98 @@ export function SalaTexto({ questions }: SalaTextoProps) {
         </div>
       </header>
 
-      <main className="mx-auto grid w-full max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_320px] lg:px-8">
-        <section className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between text-caption text-content-secondary">
-              <span className="font-medium">
-                {t.interview.question} {index + 1} {t.interview.of}{' '}
-                {questions.length}
-              </span>
-              <span>{t.interview.generatedByAi}</span>
+      <main className="flex flex-1 flex-col items-center px-4 pb-10 pt-8 lg:pt-12">
+        <div className="flex w-full max-w-3xl flex-col items-center">
+          <p className="text-caption text-content-secondary">
+            {t.interview.question} {index + 1} {t.interview.of}{' '}
+            {questions.length}
+          </p>
+
+          <button
+            type="button"
+            onClick={handleToggleQuestion}
+            className="mt-3 inline-flex items-center gap-1.5 rounded-pill border border-border bg-surface px-3 py-1.5 text-caption font-medium text-content-secondary transition-colors hover:text-content-primary"
+          >
+            {showQuestion ? (
+              <EyeOff className="size-4" strokeWidth={1.75} />
+            ) : (
+              <Eye className="size-4" strokeWidth={1.75} />
+            )}
+            {showQuestion
+              ? t.interview.hideQuestion
+              : t.interview.showQuestion}
+          </button>
+
+          {showQuestion ? (
+            <div className="mt-5 w-full rounded-card border border-border bg-surface p-5 text-center shadow-card">
+              <p className="font-display text-h1 font-semibold text-content-primary">
+                {currentQuestion.text}
+              </p>
+              {currentQuestion.focus && (
+                <p className="mt-2 text-caption text-content-secondary">
+                  {t.interview.focus}: {currentQuestion.focus}
+                </p>
+              )}
             </div>
-            <ProgressBar
-              value={Math.round(((index + 1) / questions.length) * 100)}
+          ) : (
+            <p className="mt-5 text-center text-caption text-content-secondary">
+              {speaking ? t.interview.aiReading : t.interview.questionHidden}
+            </p>
+          )}
+
+          <div className="mt-8 flex flex-col items-center">
+            <AiOrb
+              active={speaking || listening}
+              listening={listening}
+              onClick={!voiceStarted ? handleStartVoice : undefined}
+              label={t.interview.start}
+            />
+            {!voiceStarted ? (
+              <button
+                type="button"
+                onClick={handleStartVoice}
+                className="mt-3 text-label font-medium text-primary transition-colors hover:underline"
+              >
+                {t.interview.start}
+              </button>
+            ) : (
+              <p className="mt-3 text-center text-caption text-content-secondary">
+                {status}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-8 w-full">
+            <InterviewComposer
+              value={currentAnswer}
+              onChange={updateAnswer}
+              onSend={handleSend}
+              onToggleMic={handleRecord}
+              onRepeatQuestion={handleRepeatQuestion}
+              onStopVoice={handleStopVoice}
+              onWrite={handleWrite}
+              listening={listening}
+              speaking={speaking}
+              sending={evaluating}
+              sttSupported={sttSupported}
+              ttsSupported={ttsSupported}
+              error={error}
+              sttError={sttErrorMessage}
+              textareaRef={textareaRef}
             />
           </div>
 
-          <Card className="p-6">
-            <div className="flex items-start gap-3">
-              <span
-                className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-accent text-white"
-                aria-hidden="true"
-              >
-                <Sparkles className="size-5" strokeWidth={1.75} />
-              </span>
-              <div>
-                <p className="text-caption text-content-secondary">
-                  {t.interview.interviewer}
-                </p>
-                <p className="mt-1 font-display text-h2 font-semibold text-content-primary lg:text-h1">
-                  {currentQuestion.text}
-                </p>
-                {currentQuestion.focus && (
-                  <p className="mt-1 text-caption text-content-secondary">
-                    {t.interview.focus}: {currentQuestion.focus}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {!voiceStarted ? (
-              <div className="mt-6 rounded-input border border-border bg-background p-4 text-center">
-                <p className="text-caption text-content-secondary">
-                  {t.interview.tapMic}
-                </p>
-                <div className="mt-3 flex flex-col justify-center gap-2 sm:flex-row">
-                  <Button
-                    onClick={handleStartVoice}
-                    leftIcon={
-                      <Volume2 className="size-4" strokeWidth={1.75} />
-                    }
-                  >
-                    {t.interview.start}
-                  </Button>
-                  <Button variant="ghost" onClick={handleTextOnly}>
-                    {t.interview.textOnly}
-                  </Button>
-                </div>
-                {!ttsSupported && (
-                  <p className="mt-2 text-caption text-content-secondary">
-                    {t.interview.ttsUnsupported}
-                  </p>
-                )}
-              </div>
-            ) : (
-              <div className="mt-6 flex flex-col items-center gap-3 rounded-input border border-border bg-background p-4">
-                <AudioWave active={listening || speaking} />
-
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <div className="relative">
-                    {listening && (
-                      <span className="absolute inset-0 animate-ping rounded-full bg-error/30" />
-                    )}
-                    {sttSupported && (
-                      <button
-                        type="button"
-                        onClick={handleRecord}
-                        aria-label={
-                          listening
-                            ? t.interview.stopVoice
-                            : t.interview.tapMic
-                        }
-                        className={cn(
-                          'relative flex size-16 items-center justify-center rounded-full text-white shadow-lg transition-transform',
-                          listening
-                            ? 'bg-error'
-                            : 'bg-primary hover:scale-105 hover:bg-primary-dark',
-                        )}
-                      >
-                        {listening ? (
-                          <Square className="size-6" fill="currentColor" />
-                        ) : (
-                          <Mic className="size-7" strokeWidth={1.75} />
-                        )}
-                      </button>
-                    )}
-                  </div>
-
-                  {ttsSupported && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={
-                        speaking ? stopSpeaking : handleListenQuestion
-                      }
-                      leftIcon={
-                        speaking ? (
-                          <Square className="size-4" strokeWidth={1.75} />
-                        ) : (
-                          <Volume2 className="size-4" strokeWidth={1.75} />
-                        )
-                      }
-                    >
-                      {speaking
-                        ? t.interview.stopVoice
-                        : t.interview.listenQuestion}
-                    </Button>
-                  )}
-                </div>
-
-                <p className="text-caption text-content-secondary">{status}</p>
-                {sttErrorMessage && (
-                  <p className="text-caption text-error">{sttErrorMessage}</p>
-                )}
-                {!sttSupported && (
-                  <p className="text-center text-caption text-content-secondary">
-                    {t.interview.micUnsupported}
-                  </p>
-                )}
-                {!ttsSupported && (
-                  <p className="text-center text-caption text-content-secondary">
-                    {t.interview.ttsUnsupported}
-                  </p>
-                )}
-              </div>
-            )}
-
-            <label
-              htmlFor="interview-answer"
-              className="mt-6 block text-label font-medium text-content-primary"
-            >
-              {t.interview.answer}
-            </label>
-            <textarea
-              id="interview-answer"
-              value={currentAnswer}
-              onChange={(event) => updateAnswer(event.target.value)}
-              rows={7}
-              placeholder={t.interview.answerPlaceholder}
-              className="mt-2 w-full resize-none rounded-input border border-border bg-surface px-3 py-2 text-body text-content-primary placeholder:text-content-secondary focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/30"
-            />
-            <p className="mt-1 text-caption text-content-secondary">
-              {t.interview.transcriptHint}
+          {!sttSupported && (
+            <p className="mt-3 text-center text-caption text-content-secondary">
+              {t.interview.micUnsupported}
             </p>
-
-            {error && <p className="mt-2 text-caption text-error">{error}</p>}
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-caption text-content-secondary">
-                {t.interview.tip}
-              </p>
-              <div className="flex gap-2">
-                {!isLast && (
-                  <Button
-                    variant="outline"
-                    onClick={handleNext}
-                    rightIcon={<ChevronRight className="size-4" />}
-                  >
-                    {t.interview.next}
-                  </Button>
-                )}
-                <Button
-                  onClick={handleEvaluate}
-                  loading={evaluating}
-                  leftIcon={<Sparkles className="size-4" strokeWidth={1.75} />}
-                >
-                  {t.interview.evaluate}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        </section>
-
-        <aside>
-          <Card className="p-4">
-            <h2 className="text-label font-semibold text-content-primary">
-              {t.interview.questions}
-            </h2>
-            <ol className="mt-3 flex flex-col gap-2">
-              {questions.map((question, questionIndex) => (
-                <li
-                  key={question.id}
-                  className={cn(
-                    'rounded-input border px-3 py-2 text-caption',
-                    questionIndex === index
-                      ? 'border-primary/30 bg-primary/5 text-content-primary'
-                      : 'border-border bg-background text-content-secondary',
-                  )}
-                >
-                  <span className="font-semibold">{questionIndex + 1}.</span>{' '}
-                  {question.text}
-                  {answers[questionIndex]?.trim() && (
-                    <Check
-                      className="ml-1 inline size-3 text-success"
-                      strokeWidth={2}
-                    />
-                  )}
-                </li>
-              ))}
-            </ol>
-          </Card>
-        </aside>
+          )}
+          {!ttsSupported && (
+            <p className="mt-1 text-center text-caption text-content-secondary">
+              {t.interview.ttsUnsupported}
+            </p>
+          )}
+        </div>
       </main>
     </div>
   )

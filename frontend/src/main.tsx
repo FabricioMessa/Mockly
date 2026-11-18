@@ -4,8 +4,10 @@ import './index.css'
 import App from './App.tsx'
 import { AppSettingsProvider } from './context/AppSettingsProvider'
 import { ensureDemoUser } from './lib/auth'
+import { ensureDemoSessions } from './lib/interviewHistory'
 
 ensureDemoUser()
+ensureDemoSessions()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

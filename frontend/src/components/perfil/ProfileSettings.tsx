@@ -23,6 +23,7 @@ import { useAppSettings } from '../../context/appSettings'
 import { logout } from '../../lib/auth'
 import { cn } from '../../lib/cn'
 import { useTranslation } from '../../lib/i18n'
+import { readPlan } from '../../lib/plan'
 import { TIMEZONE_OPTIONS } from '../../lib/preferences'
 import type { Language, Theme, Timezone } from '../../lib/preferences'
 import { Badge } from '../ui/Badge'
@@ -163,6 +164,7 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
     voiceName,
   } = useAppSettings()
   const [modal, setModal] = useState<ModalName>(null)
+  const plan = readPlan()
 
   const handleLogout = () => {
     logout()
@@ -280,7 +282,7 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
             <Badge>{t.settings.planCurrent}</Badge>
           </div>
           <p className="mt-2 font-display text-h2 font-semibold text-content-primary">
-            {t.settings.free}
+            {plan === 'pro' ? t.settings.pro : t.settings.free}
           </p>
           <p className="mt-1 text-caption text-content-secondary">
             {t.settings.freeDesc}

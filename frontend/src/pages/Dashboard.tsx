@@ -8,8 +8,17 @@ import { modes } from '../components/dashboard/modes'
 import { WeeklyProgress } from '../components/dashboard/WeeklyProgress'
 import { InstallBanner } from '../components/pwa/InstallBanner'
 import { StatChip } from '../components/ui/StatChip'
+import {
+  formatTotalTime,
+  getHistoryStats,
+  readSessions,
+} from '../lib/interviewHistory'
+import { useTranslation } from '../lib/i18n'
 
 export function Dashboard() {
+  const t = useTranslation()
+  const stats = getHistoryStats(readSessions())
+
   return (
     <>
       <MobileHeader />
@@ -28,26 +37,26 @@ export function Dashboard() {
           <div className="grid grid-cols-3 gap-3 lg:grid-cols-4">
             <StatChip
               icon={<CalendarDays className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value={12}
-              label="entrevistas"
+              value={stats.total}
+              label={t.stats.interviews}
               tone="primary"
             />
             <StatChip
               icon={<Award className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value={84}
-              label="puntaje"
+              value={Math.round(stats.averageScore)}
+              label={t.stats.score}
               tone="accent"
             />
             <StatChip
               icon={<Flame className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value={7}
-              label="racha de días"
+              value={stats.currentStreak}
+              label={t.stats.streak}
               tone="warning"
             />
             <StatChip
               icon={<Clock className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value="14h"
-              label="tiempo total"
+              value={formatTotalTime(stats.totalSeconds)}
+              label={t.stats.time}
               tone="primary"
               className="hidden lg:flex"
             />

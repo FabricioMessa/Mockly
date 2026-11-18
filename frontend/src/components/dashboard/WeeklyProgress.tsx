@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Card } from '../ui/Card'
 
 const days = [
@@ -43,13 +44,13 @@ export function WeeklyProgress() {
         </div>
       </div>
 
-      <button
-        type="button"
+      <Link
+        to="/progreso"
         className="mt-4 flex items-center gap-1 text-caption font-medium text-primary"
       >
         Ver progreso detallado
         <ChevronRight className="size-4" strokeWidth={1.75} />
-      </button>
+      </Link>
     </Card>
   )
 }

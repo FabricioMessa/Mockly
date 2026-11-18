@@ -6,6 +6,8 @@ import { useSpeechRecognition } from '../../hooks/useSpeechRecognition'
 import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis'
 import { evaluateAnswer } from '../../lib/api'
 import type { Question } from '../../lib/api'
+import { saveSession } from '../../lib/interviewHistory'
+import type { InterviewSession } from '../../lib/interviewHistory'
 import { readSetup, saveEvaluation } from '../../lib/interviewStorage'
 import { useTranslation } from '../../lib/i18n'
 import { Button } from '../ui/Button'
@@ -192,6 +194,27 @@ export function SalaTexto({ questions }: SalaTextoProps) {
         language,
       })
       saveEvaluation(evaluation)
+
+      const sessionId =
+        typeof crypto !== 'undefined' && 'randomUUID' in crypto
+          ? crypto.randomUUID()
+          : `session-${Date.now()}`
+      const session: InterviewSession = {
+        id: sessionId,
+        completedAt: new Date().toISOString(),
+        mode: setup?.mode ?? 'laboral',
+        role: setup?.role ?? 'Product Manager',
+        difficulty: setup?.difficulty ?? 'Intermedio',
+        tone: setup?.tone ?? 'Neutral',
+        durationSeconds: elapsed,
+        questions,
+        answers: answers.map((answer, answerIndex) =>
+          answerIndex === index ? currentAnswer.trim() : answer,
+        ),
+        evaluation,
+        evaluatedQuestionIndex: index,
+      }
+      saveSession(session)
       navigate('/feedback')
     } catch {
       setError(t.interview.evaluationError)

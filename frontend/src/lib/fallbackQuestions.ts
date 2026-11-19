@@ -170,6 +170,72 @@ const languages: FallbackItem[] = [
   },
 ]
 
+const followUpsEs: Record<string, FallbackItem[]> = {
+  laboral: [
+    {
+      text: 'Háblame de una decisión difícil que tomaste con información incompleta.',
+      focus: 'toma de decisiones',
+    },
+    {
+      text: '¿Cómo medirías el éxito en tus primeros 90 días en el puesto?',
+      focus: 'objetivos',
+    },
+  ],
+  universidad: [
+    {
+      text: '¿Qué harías si no fueras admitido en la carrera que elegiste?',
+      focus: 'resiliencia',
+    },
+    {
+      text: 'Describe un proyecto académico en el que hayas liderado a otras personas.',
+      focus: 'liderazgo',
+    },
+  ],
+  idiomas: [
+    {
+      text: 'Describe a challenge you faced while speaking English and how you overcame it.',
+      focus: 'resilience',
+    },
+    {
+      text: 'How do you prepare for a professional interview in English?',
+      focus: 'preparation',
+    },
+  ],
+}
+
+const followUpsEn: Record<string, FallbackItem[]> = {
+  laboral: [
+    {
+      text: 'Tell me about a difficult decision you made with incomplete information.',
+      focus: 'decision making',
+    },
+    {
+      text: 'How would you measure success in your first 90 days in the role?',
+      focus: 'goals',
+    },
+  ],
+  universidad: [
+    {
+      text: 'What would you do if you were not admitted to the career you chose?',
+      focus: 'resilience',
+    },
+    {
+      text: 'Describe an academic project where you led other people.',
+      focus: 'leadership',
+    },
+  ],
+  idiomas: [
+    {
+      text: 'Describe a challenge you faced while speaking English and how you overcame it.',
+      focus: 'resilience',
+    },
+    {
+      text: 'How do you prepare for a professional interview in English?',
+      focus: 'preparation',
+    },
+  ],
+}
+
 function toQuestions(items: FallbackItem[]): Question[] {
   return items.map((item, index) => ({ id: index + 1, ...item }))
 }
@@ -186,15 +252,21 @@ export function getFallbackQuestions(
   language: 'es' | 'en',
   mode: string,
   role: string,
+  count = 3,
 ): Question[] {
+  const limit = Math.max(1, Math.min(5, count))
+  let items: FallbackItem[]
+
   if (mode === 'universidad') {
-    return toQuestions(language === 'en' ? universityEn : universityEs)
+    items = language === 'en' ? universityEn : universityEs
+  } else if (mode === 'idiomas') {
+    items = languages
+  } else {
+    const dictionary = language === 'en' ? laboralEn : laboralEs
+    items = dictionary[roleKey(role)]
   }
 
-  if (mode === 'idiomas') {
-    return toQuestions(languages)
-  }
-
-  const dictionary = language === 'en' ? laboralEn : laboralEs
-  return toQuestions(dictionary[roleKey(role)])
+  const followUps = language === 'en' ? followUpsEn : followUpsEs
+  const extras = followUps[mode] ?? followUps.laboral
+  return toQuestions([...items, ...extras].slice(0, limit))
 }

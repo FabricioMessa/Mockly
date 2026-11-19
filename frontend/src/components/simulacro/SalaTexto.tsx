@@ -6,7 +6,7 @@ import { useSpeechRecognition } from '../../hooks/useSpeechRecognition'
 import { useSpeechSynthesis } from '../../hooks/useSpeechSynthesis'
 import { evaluateAnswer } from '../../lib/api'
 import type { Question } from '../../lib/api'
-import { saveSession } from '../../lib/interviewHistory'
+import { saveSession, saveSupabaseSession } from '../../lib/interviewHistory'
 import type { InterviewSession } from '../../lib/interviewHistory'
 import { readSetup, saveEvaluation } from '../../lib/interviewStorage'
 import { useTranslation } from '../../lib/i18n'
@@ -215,6 +215,8 @@ export function SalaTexto({ questions }: SalaTextoProps) {
         evaluatedQuestionIndex: index,
       }
       saveSession(session)
+      const savedSession = await saveSupabaseSession(session)
+      saveSession(savedSession)
       navigate('/feedback')
     } catch {
       setError(t.interview.evaluationError)

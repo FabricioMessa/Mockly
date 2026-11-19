@@ -6,7 +6,7 @@ import {
   RotateCcw,
   Trash2,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
@@ -15,11 +15,14 @@ import { Modal } from '../components/ui/Modal'
 import { useAppSettings } from '../context/appSettings'
 import {
   deleteSession,
+  deleteSupabaseSession,
+  fetchSupabaseSession,
   formatDuration,
   formatSessionDate,
   getSession,
   modeKey,
 } from '../lib/interviewHistory'
+import type { InterviewSession } from '../lib/interviewHistory'
 import { useTranslation } from '../lib/i18n'
 import {
   saveEvaluation,
@@ -33,7 +36,36 @@ export function EntrevistaDetalle() {
   const t = useTranslation()
   const { language } = useAppSettings()
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const session = id ? getSession(id) : null
+  const localSession = id ? getSession(id) : null
+  const [session, setSession] = useState<InterviewSession | null>(localSession)
+  const [loading, setLoading] = useState(!localSession)
+
+  useEffect(() => {
+    if (!id || localSession) return
+
+    let active = true
+    fetchSupabaseSession(id).then((remoteSession) => {
+      if (!active) return
+      setSession(remoteSession)
+      setLoading(false)
+    })
+
+    return () => {
+      active = false
+    }
+  }, [id, localSession])
+
+  if (loading) {
+    return (
+      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+        <Card className="p-6 text-center">
+          <p className="text-body text-content-secondary">
+            Cargando entrevista...
+          </p>
+        </Card>
+      </div>
+    )
+  }
 
   if (!session) {
     return (
@@ -73,8 +105,9 @@ export function EntrevistaDetalle() {
     navigate('/feedback')
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     deleteSession(session.id)
+    await deleteSupabaseSession(session.id)
     navigate('/entrevistas')
   }
 

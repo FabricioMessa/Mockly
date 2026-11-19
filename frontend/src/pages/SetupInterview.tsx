@@ -29,6 +29,7 @@ export function SetupInterview() {
   const [role, setRole] = useState('Junior Software Engineer')
   const [difficulty, setDifficulty] = useState('Intermedio')
   const [tone, setTone] = useState('Neutral')
+  const [questionCount, setQuestionCount] = useState(3)
   const [aiQuestions, setAiQuestions] = useState<Question[]>([])
   const [generating, setGenerating] = useState(false)
   const [aiNotice, setAiNotice] = useState('')
@@ -37,7 +38,7 @@ export function SetupInterview() {
     setGenerating(true)
     setAiNotice('')
 
-    const fallback = getFallbackQuestions(language, mode, role)
+    const fallback = getFallbackQuestions(language, mode, role, questionCount)
     setAiQuestions(fallback)
     saveQuestions(fallback)
     saveSetup({ mode, role, difficulty, tone })
@@ -48,7 +49,7 @@ export function SetupInterview() {
         role,
         difficulty: difficultyMap[difficulty] ?? 'intermedio',
         tone: toneMap[tone] ?? 'neutral',
-        count: 3,
+        count: questionCount,
         language,
       })
 
@@ -67,6 +68,7 @@ export function SetupInterview() {
           .from('questions_bank')
           .select('*')
           .eq('role_category', role)
+          .limit(questionCount)
 
         if (!error && data && data.length > 0) {
           const bankQuestions: Question[] = data.map((q: any) => ({
@@ -96,6 +98,12 @@ export function SetupInterview() {
 
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault()
+    const questionsToUse =
+      aiQuestions.length > 0
+        ? aiQuestions
+        : getFallbackQuestions(language, mode, role, questionCount)
+    setAiQuestions(questionsToUse)
+    saveQuestions(questionsToUse)
     saveSetup({ mode, role, difficulty, tone })
     navigate('/simulacro')
   }
@@ -224,7 +232,7 @@ export function SetupInterview() {
                   Preguntas generadas por IA
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-                  Gemini generará 3 preguntas según tu rol, dificultad y tono.
+                  La IA generará {questionCount} preguntas según tu rol, dificultad y tono.
                 </p>
               </div>
               <button
@@ -241,6 +249,29 @@ export function SetupInterview() {
               </button>
             </div>
 
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-slate-600">
+                Cantidad de preguntas:
+              </span>
+              {[3, 4, 5].map((count) => (
+                <button
+                  key={count}
+                  type="button"
+                  onClick={() => {
+                    setQuestionCount(count)
+                    setAiQuestions([])
+                  }}
+                  className={
+                    questionCount === count
+                      ? 'rounded-lg border border-blue-600 bg-blue-50 px-3 py-1.5 text-xs font-semibold text-blue-600'
+                      : 'rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-300'
+                  }
+                >
+                  {count}
+                </button>
+              ))}
+            </div>
+
             {aiNotice && (
               <p className="mt-3 text-xs font-medium text-amber-600">
                 {aiNotice}
@@ -248,30 +279,19 @@ export function SetupInterview() {
             )}
 
             {aiQuestions.length > 0 && (
-              <ol className="mt-4 space-y-2">
-                {aiQuestions.map((question, index) => (
-                  <li
-                    key={question.id}
-                    className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-700"
-                  >
-                    <span className="font-semibold text-blue-600">
-                      {index + 1}.
-                    </span>{' '}
-                    {question.text}
-                    {question.focus && (
-                      <span className="ml-2 text-[10px] uppercase tracking-wide text-slate-400">
-                        {question.focus}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ol>
+              <p className="mt-3 text-xs font-medium text-emerald-600">
+                ✓ {aiQuestions.length}{' '}
+                {aiQuestions.length === 1
+                  ? 'pregunta lista'
+                  : 'preguntas listas'}{' '}
+                para la simulación.
+              </p>
             )}
           </div>
 
           {/* Botón Acción */}
           <div className="flex items-center justify-between pt-2">
-            <span className="text-xs text-slate-500">⚡ ~15-20 min &bull; 4-5 preguntas conductuales</span>
+            <span className="text-xs text-slate-500">⚡ ~15-20 min &bull; {questionCount} preguntas conductuales</span>
             <button
               type="submit"
               className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-md hover:bg-blue-700 transition"

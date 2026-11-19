@@ -501,43 +501,199 @@ export function ensureDemoSessions() {
 
 import { supabase } from './supabase'
 
-export async function fetchSupabaseSessions(): Promise<
-  ReturnType<typeof readSessions>
-> {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+const emptyStar: InterviewEvaluation['star'] = {
+  situation: '',
+  task: '',
+  action: '',
+  result: '',
+}
 
-  if (!user) return []
+const emptyMetrics: InterviewEvaluation['metrics'] = {
+  fluency: 0,
+  fillerWords: 'N/A',
+  confidence: 0,
+  keywords: '0/0',
+}
 
-  const { data, error } = await supabase
-    .from('interview_sessions')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+function isEvaluation(value: unknown): value is InterviewEvaluation {
+  if (!value || typeof value !== 'object') return false
+  const evaluation = value as Partial<InterviewEvaluation>
+  return (
+    typeof evaluation.score === 'number' &&
+    Boolean(evaluation.star) &&
+    Boolean(evaluation.metrics)
+  )
+}
 
-  if (error || !data) {
-    console.error('Error al cargar sesiones desde Supabase:', error?.message)
-    return []
+function normalizeEvaluation(row: any): InterviewEvaluation {
+  let parsed: unknown = row.feedback_summary
+
+  if (typeof parsed === 'string') {
+    try {
+      parsed = JSON.parse(parsed)
+    } catch {
+      // Algunos registros guardan solo el resumen en texto plano.
+    }
   }
 
-  return data.map((row: any) => ({
-    id: row.id,
+  if (isEvaluation(parsed)) {
+    return {
+      ...parsed,
+      summary: parsed.summary ?? '',
+      star: { ...emptyStar, ...parsed.star },
+      metrics: { ...emptyMetrics, ...parsed.metrics },
+      strengths: Array.isArray(parsed.strengths) ? parsed.strengths : [],
+      recommendations: Array.isArray(parsed.recommendations)
+        ? parsed.recommendations
+        : [],
+    }
+  }
+
+  return {
+    score: typeof row.overall_score === 'number' ? row.overall_score : 0,
+    summary: typeof parsed === 'string' ? parsed : '',
+    star: { ...emptyStar },
+    metrics: { ...emptyMetrics },
+    strengths: [],
+    recommendations: [],
+    provider: 'supabase',
+  }
+}
+
+function mapRowToSession(row: any): InterviewSession {
+  const answers = Array.isArray(row.answers) ? (row.answers as string[]) : []
+  const questions = Array.isArray(row.questions)
+    ? (row.questions as Question[])
+    : []
+  const lastAnswered = answers.reduce(
+    (last, answer, index) => (answer && answer.trim() ? index : last),
+    0,
+  )
+
+  return {
+    id: String(row.id),
+    completedAt: row.created_at ?? new Date().toISOString(),
     mode: row.mode ?? 'laboral',
     role: row.role_category ?? 'Simulacro',
     difficulty: row.difficulty ?? 'Intermedio',
-    durationSeconds: row.duration_seconds ?? 300,
-    completedAt: row.created_at,
+    tone: 'Neutral',
+    durationSeconds: row.duration_seconds ?? 0,
+    questions,
+    answers,
+    evaluation: normalizeEvaluation(row),
+    evaluatedQuestionIndex: lastAnswered,
     demo: false,
-    questions: Array.isArray(row.questions) ? row.questions : [],
-    answers: Array.isArray(row.answers) ? row.answers : [],
-    evaluation: row.feedback_summary ?? {
-      score: row.overall_score ?? 0,
-      summary: '',
-      star: { situation: '', task: '', action: '', result: '' },
-      metrics: { fluency: 0, fillerWords: 'N/A', confidence: 0, keywords: '0/0' },
-      strengths: [],
-      recommendations: [],
-    },
-  })) as ReturnType<typeof readSessions>
+  }
+}
+
+export async function saveSupabaseSession(
+  session: InterviewSession,
+): Promise<InterviewSession> {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return session
+
+    const { error } = await supabase.from('interview_sessions').insert({
+      id: session.id,
+      user_id: user.id,
+      mode: session.mode,
+      role_category: session.role,
+      difficulty: session.difficulty,
+      duration_seconds: session.durationSeconds,
+      overall_score: session.evaluation.score,
+      questions: session.questions,
+      answers: session.answers,
+      feedback_summary: JSON.stringify(session.evaluation),
+      created_at: session.completedAt,
+    })
+
+    if (error) {
+      console.error('Error al guardar la sesión en Supabase:', error.message)
+    }
+  } catch (error) {
+    console.error('Error al guardar la sesión en Supabase:', error)
+  }
+
+  return session
+}
+
+export async function deleteSupabaseSession(id: string): Promise<void> {
+  try {
+    const { error } = await supabase
+      .from('interview_sessions')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('Error al eliminar la sesión en Supabase:', error.message)
+    }
+  } catch (error) {
+    console.error('Error al eliminar la sesión en Supabase:', error)
+  }
+}
+
+export async function fetchSupabaseSession(
+  id: string,
+): Promise<InterviewSession | null> {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data, error } = await supabase
+      .from('interview_sessions')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (error) {
+      console.error('Error al cargar la sesión desde Supabase:', error.message)
+      return null
+    }
+
+    return data ? mapRowToSession(data) : null
+  } catch (error) {
+    console.error('Error al cargar la sesión desde Supabase:', error)
+    return null
+  }
+}
+
+export async function fetchSupabaseSessions(): Promise<InterviewSession[]> {
+  const localSessions = readSessions().filter((session) => !session.demo)
+
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return localSessions
+
+    const { data, error } = await supabase
+      .from('interview_sessions')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (error || !data) {
+      console.error('Error al cargar sesiones desde Supabase:', error?.message)
+      return localSessions
+    }
+
+    const merged = new Map<string, InterviewSession>()
+    for (const session of [...data.map(mapRowToSession), ...localSessions]) {
+      merged.set(session.id, session)
+    }
+
+    return [...merged.values()].sort(
+      (first, second) =>
+        new Date(second.completedAt).getTime() -
+        new Date(first.completedAt).getTime(),
+    )
+  } catch (error) {
+    console.error('Error al cargar sesiones desde Supabase:', error)
+    return localSessions
+  }
 }

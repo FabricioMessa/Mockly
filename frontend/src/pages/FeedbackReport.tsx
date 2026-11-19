@@ -4,10 +4,7 @@ import { useAppSettings } from '../context/appSettings'
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import type { InterviewEvaluation } from '../lib/api'
 import { useTranslation } from '../lib/i18n'
-import * as interviewStorage from '../lib/interviewStorage'
 import { readEvaluation } from '../lib/interviewStorage'
-import { useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
 
 const fallbackEvaluation: InterviewEvaluation = {
   score: 82,
@@ -46,58 +43,6 @@ export function FeedbackReport() {
 
   const currentEvaluation = readEvaluation()
   const evaluation = currentEvaluation ?? fallbackEvaluation
-  const savedRef = useRef(false)
-
-  useEffect(() => {
-    async function saveSessionToDB() {
-      if (!currentEvaluation || savedRef.current) return
-      savedRef.current = true
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
-      if (!user) return
-
-      // Intentamos leer setup, preguntas y respuestas si existen en interviewStorage
-      const storageAny = interviewStorage as Record<string, unknown>
-      const setup =
-        typeof storageAny.readSetup === 'function'
-          ? (storageAny.readSetup() as {
-              mode?: string
-              role?: string
-              difficulty?: string
-            } | null)
-          : null
-      const questions =
-        typeof storageAny.readQuestions === 'function'
-          ? (storageAny.readQuestions() as unknown[])
-          : []
-      const answers =
-        typeof storageAny.readAnswers === 'function'
-          ? (storageAny.readAnswers() as string[])
-          : []
-
-      const { error } = await supabase.from('interview_sessions').insert([
-        {
-          user_id: user.id,
-          mode: setup?.mode ?? 'laboral',
-          role_category: setup?.role ?? 'Simulacro IA',
-          difficulty: setup?.difficulty ?? 'Intermedio',
-          duration_seconds: 334,
-          overall_score: evaluation.score,
-          questions,
-          answers,
-          feedback_summary: evaluation,
-        },
-      ])
-
-      if (error) {
-        console.error('Error al guardar sesión en Supabase:', error.message)
-      }
-    }
-
-    saveSessionToDB()
-  }, [currentEvaluation, evaluation])
 
   const isAi = evaluation.provider === 'gemini'
   const keywordHint =

@@ -5,6 +5,7 @@ import { useAppSettings } from '../context/appSettings'
 import { fetchQuestions } from '../lib/api'
 import type { Question } from '../lib/api'
 import { saveQuestions, saveSetup } from '../lib/interviewStorage'
+import { supabase } from '../lib/supabase'
 
 const difficultyMap: Record<string, string> = {
   Fácil: 'facil',
@@ -48,9 +49,25 @@ export function SetupInterview() {
       saveQuestions(result.questions)
       saveSetup({ mode, role, difficulty, tone })
     } catch {
-      setAiError(
-        'No se pudo conectar con la IA. Verifica que el backend esté activo.',
-      )
+      const { data, error } = await supabase
+        .from('questions_bank')
+        .select('*')
+        .eq('role_category', role)
+
+      if (!error && data && data.length > 0) {
+        const fallbackQuestions: Question[] = data.map((q: any) => ({
+          id: q.id,
+          text: q.question_text,
+          focus: `${q.difficulty} (Banco BD)`,
+        }))
+        setAiQuestions(fallbackQuestions)
+        saveQuestions(fallbackQuestions)
+        saveSetup({ mode, role, difficulty, tone })
+      } else {
+        setAiError(
+          'No se pudo conectar con la IA ni cargar preguntas de respaldo.',
+        )
+      }
     } finally {
       setGenerating(false)
     }

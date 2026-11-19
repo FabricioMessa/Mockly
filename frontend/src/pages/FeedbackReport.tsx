@@ -5,6 +5,8 @@ import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import type { InterviewEvaluation } from '../lib/api'
 import { useTranslation } from '../lib/i18n'
 import { readEvaluation } from '../lib/interviewStorage'
+import { useEffect, useRef } from 'react'
+import { supabase } from '../lib/supabase'
 
 const fallbackEvaluation: InterviewEvaluation = {
   score: 82,
@@ -41,6 +43,38 @@ export function FeedbackReport() {
   const { supported: ttsSupported, speaking, speak, stop } =
     useSpeechSynthesis({ language, voiceName, rate: speechRate })
   const evaluation = readEvaluation() ?? fallbackEvaluation
+  
+  const savedRef = useRef(false)
+
+  useEffect(() => {
+    async function saveSessionToDB() {
+      // Evita guardar datos de demostración o duplicar el registro
+      if (!readEvaluation || savedRef.current) return
+      savedRef.current = true
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error } = await supabase.from('interview_sessions').insert([
+        {
+          user_id: user.id,
+          role_category: 'Simulacro IA',
+          difficulty: 'Intermedio',
+          overall_score: evaluation.score,
+          feedback_summary: evaluation,
+        },
+      ])
+
+      if (error) {
+        console.error('Error al guardar sesión en Supabase:', error.message)
+      }
+    }
+
+    saveSessionToDB()
+  }, [readEvaluation, evaluation])
+
   const isAi = evaluation.provider === 'gemini'
   const keywordHint =
     evaluation.strengths.slice(0, 3).join(', ') || 'STAR, métricas, liderazgo'

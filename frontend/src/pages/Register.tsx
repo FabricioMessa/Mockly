@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { saveUser, startSession } from '../lib/auth'
+import { supabase } from '../lib/supabase'
 
 export function Register() {
   const navigate = useNavigate()
@@ -31,7 +31,7 @@ export function Register() {
 
   const strength = getPasswordStrength(password)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
@@ -41,13 +41,31 @@ export function Register() {
     }
 
     setLoading(true)
-    setTimeout(() => {
-      saveUser({ fullName, email, password })
-      startSession()
 
+    // Registrar en Supabase Auth
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+      },
+    })
+
+    if (authError) {
+      setError(authError.message)
       setLoading(false)
-      navigate('/dashboard')
-    }, 800)
+      return
+    }
+
+    // Opcional: Guardar también en la tabla public.profiles si el usuario se creó con éxito
+    if (data.user) {
+      await supabase.from('profiles').insert([
+        { id: data.user.id, full_name: fullName, email: email }
+      ])
+    }
+
+    setLoading(false)
+    navigate('/dashboard')
   }
 
   return (
@@ -55,7 +73,7 @@ export function Register() {
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Mockly</h1>
-          <p className="text-xs text-slate-400 mt-1">Crea tu cuenta (Modo Local DB)</p>
+          <p className="text-xs text-slate-400 mt-1">Crea tu cuenta (Supabase DB)</p>
         </div>
 
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-950 p-1 text-center text-sm font-medium mb-6 border border-slate-800">

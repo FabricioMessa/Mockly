@@ -1,6 +1,7 @@
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import React, { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import { fetchQuestions } from '../lib/api'
 import type { Question } from '../lib/api'
 import { saveQuestions, saveSetup } from '../lib/interviewStorage'
@@ -34,6 +35,7 @@ export function SetupInterview() {
     setAiError('')
 
     try {
+      // 1. Intenta primero con el backend de Gemini de tu compañero
       const result = await fetchQuestions({
         mode,
         role,
@@ -45,9 +47,24 @@ export function SetupInterview() {
       saveQuestions(result.questions)
       saveSetup({ mode, role, difficulty, tone })
     } catch {
-      setAiError(
-        'No se pudo conectar con la IA. Verifica que el backend esté activo.',
-      )
+      // 2. Si Gemini o el backend fallan, usa Supabase como respaldo automático
+      const { data, error } = await supabase
+        .from('questions_bank')
+        .select('*')
+        .eq('role_category', role)
+
+      if (!error && data && data.length > 0) {
+        const fallbackQuestions: Question[] = data.map((q: any) => ({
+          id: q.id,
+          text: q.question_text,
+          focus: `${q.difficulty} (Banco BD)`,
+        }))
+        setAiQuestions(fallbackQuestions)
+        saveQuestions(fallbackQuestions)
+        saveSetup({ mode, role, difficulty, tone })
+      } else {
+        setAiError('No se pudo conectar con la IA ni cargar preguntas de respaldo.')
+      }
     } finally {
       setGenerating(false)
     }

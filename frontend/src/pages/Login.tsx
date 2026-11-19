@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { DEMO_CREDENTIALS, login } from '../lib/auth'
+import { supabase } from '../lib/supabase'
 
 export function Login() {
   const navigate = useNavigate()
@@ -10,20 +10,29 @@ export function Login() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    setTimeout(() => {
-      setLoading(false)
+  const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
 
-      if (login(email, password)) {
-        navigate('/dashboard')
-      } else {
+    setLoading(false)
+
+    if (error) {
+      if (error.message.includes('Email not confirmed')) {
+        setError('Tu correo aún no está confirmado en Supabase.')
+      } else if (error.message.includes('Invalid login credentials')) {
         setError('Correo o contraseña incorrectos.')
+      } else {
+        setError(error.message)
       }
-    }, 800)
+    } else {
+      navigate('/dashboard')
+    }
   }
 
   return (
@@ -31,30 +40,12 @@ export function Login() {
       <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 shadow-2xl backdrop-blur-md">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Mockly</h1>
-          <p className="text-xs text-slate-400 mt-1">Inicia sesión (Verificación Local)</p>
+          <p className="text-xs text-slate-400 mt-1">Inicia sesión (Supabase Auth)</p>
         </div>
 
         <div className="grid grid-cols-2 gap-1 rounded-xl bg-slate-950 p-1 text-center text-sm font-medium mb-6 border border-slate-800">
           <button className="rounded-lg bg-blue-600 py-2 text-white shadow">Iniciar sesión</button>
           <Link to="/register" className="rounded-lg py-2 text-slate-400 hover:text-white transition">Crear cuenta</Link>
-        </div>
-
-        <div className="mb-4 rounded-lg border border-blue-500/20 bg-blue-500/10 p-3 text-xs text-blue-200">
-          <p>
-            Cuenta demo:{' '}
-            <span className="font-mono">{DEMO_CREDENTIALS.email}</span> /{' '}
-            <span className="font-mono">{DEMO_CREDENTIALS.password}</span>
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setEmail(DEMO_CREDENTIALS.email)
-              setPassword(DEMO_CREDENTIALS.password)
-            }}
-            className="mt-1 font-semibold text-blue-300 hover:underline"
-          >
-            Usar credenciales demo
-          </button>
         </div>
 
         {error && (
@@ -102,7 +93,7 @@ export function Login() {
             disabled={loading}
             className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-500 disabled:opacity-50"
           >
-            {loading ? 'Verificando...' : 'Iniciar sesión'}
+            {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
           </button>
         </form>
 

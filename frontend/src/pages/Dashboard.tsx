@@ -1,4 +1,5 @@
 import { Award, CalendarDays, Clock, Flame } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { ContinueMobile } from '../components/dashboard/ContinueMobile'
 import { ContinuePanel } from '../components/dashboard/ContinuePanel'
 import { MobileHeader } from '../components/dashboard/MobileHeader'
@@ -8,8 +9,28 @@ import { modes } from '../components/dashboard/modes'
 import { WeeklyProgress } from '../components/dashboard/WeeklyProgress'
 import { InstallBanner } from '../components/pwa/InstallBanner'
 import { StatChip } from '../components/ui/StatChip'
+import { supabase } from '../lib/supabase'
 
 export function Dashboard() {
+  const [firstName, setFirstName] = useState('Usuario')
+
+  useEffect(() => {
+    async function loadUserName() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (user) {
+        const fullName =
+          user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
+        // Tomamos solo el primer nombre para mantener el estilo limpio "Hola, [Nombre]"
+        setFirstName(fullName.split(' ')[0])
+      }
+    }
+
+    loadUserName()
+  }, [])
+
   return (
     <>
       <MobileHeader />
@@ -19,7 +40,7 @@ export function Dashboard() {
           <InstallBanner />
 
           <header>
-            <h1>Hola, Andrea</h1>
+            <h1>Hola, {firstName}</h1>
             <p className="mt-1 text-body text-content-secondary lg:hidden">
               ¿Listo para practicar?
             </p>

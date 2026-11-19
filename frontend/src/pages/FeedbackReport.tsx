@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { InterviewEvaluation } from '../lib/api'
-import { readEvaluation } from '../lib/interviewStorage'
+import { readEvaluation, readSetup } from '../lib/interviewStorage'
+import { supabase } from '../lib/supabase'
 
 const fallbackEvaluation: InterviewEvaluation = {
   score: 82,
@@ -32,11 +34,44 @@ const fallbackEvaluation: InterviewEvaluation = {
 
 export function FeedbackReport() {
   const navigate = useNavigate()
-  const evaluation = readEvaluation() ?? fallbackEvaluation
+  const rawEvaluation = readEvaluation()
+  const evaluation = rawEvaluation ?? fallbackEvaluation
+  const setup = readSetup() // Lee el rol y dificultad que eligió el usuario
+  const savedRef = useRef(false)
+
+  useEffect(() => {
+    async function saveSessionToDB() {
+      // Solo guardamos si hay una evaluación real (no el fallback) y si aún no se ha guardado
+      if (!rawEvaluation || savedRef.current) return
+      savedRef.current = true
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { error } = await supabase.from('interview_sessions').insert([
+        {
+          user_id: user.id,
+          role_category: setup?.role ?? 'Junior Software Engineer',
+          difficulty: setup?.difficulty ?? 'Intermedio',
+          overall_score: evaluation.score,
+          feedback_summary: evaluation, // Guarda todo el JSON con STAR y métricas
+        },
+      ])
+
+      if (error) {
+        console.error('Error al guardar la sesión en Supabase:', error.message)
+      }
+    }
+
+    saveSessionToDB()
+  }, [rawEvaluation, evaluation, setup])
+
   const isAi = evaluation.provider === 'gemini'
   const keywordHint =
     evaluation.strengths.slice(0, 3).join(', ') || 'STAR, métricas, liderazgo'
-
+  
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
       <div className="max-w-4xl mx-auto space-y-6">

@@ -1,10 +1,34 @@
+import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
-import { isAuthenticated } from '../../lib/auth'
+import { supabase } from '../../lib/supabase'
 
 export function RequireAuth() {
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />
+  const [loading, setLoading] = useState(true)
+  const [authenticated, setAuthenticated] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setAuthenticated(!!session)
+      setLoading(false)
+    })
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setAuthenticated(!!session)
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-slate-500">
+        Verificando sesión...
+      </div>
+    )
   }
 
-  return <Outlet />
+  return authenticated ? <Outlet /> : <Navigate to="/login" replace />
 }

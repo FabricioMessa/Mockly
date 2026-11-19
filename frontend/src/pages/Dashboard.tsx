@@ -1,4 +1,5 @@
 import { Award, CalendarDays, Clock, Flame } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { ContinueMobile } from '../components/dashboard/ContinueMobile'
 import { ContinuePanel } from '../components/dashboard/ContinuePanel'
 import { MobileHeader } from '../components/dashboard/MobileHeader'
@@ -8,36 +9,47 @@ import { modes } from '../components/dashboard/modes'
 import { WeeklyProgress } from '../components/dashboard/WeeklyProgress'
 import { InstallBanner } from '../components/pwa/InstallBanner'
 import { StatChip } from '../components/ui/StatChip'
-import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { useTranslation } from '../lib/i18n'
 import {
+  fetchSupabaseSessions,
   formatTotalTime,
   getHistoryStats,
   readSessions,
 } from '../lib/interviewHistory'
-import { useTranslation } from '../lib/i18n'
+import { supabase } from '../lib/supabase'
 
 export function Dashboard() {
   const t = useTranslation()
-  const stats = getHistoryStats(readSessions())
-
   const [firstName, setFirstName] = useState('Usuario')
+  const [sessions, setSessions] = useState<ReturnType<typeof readSessions>>([])
 
   useEffect(() => {
-    async function loadUserName() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+    let active = true
+
+    async function loadDashboardData() {
+      const [{ data: { user } }, userSessions] = await Promise.all([
+        supabase.auth.getUser(),
+        fetchSupabaseSessions(),
+      ])
+
+      if (!active) return
 
       if (user) {
         const fullName =
           user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
         setFirstName(fullName.split(' ')[0])
       }
+
+      setSessions(userSessions)
     }
 
-    loadUserName()
+    loadDashboardData()
+    return () => {
+      active = false
+    }
   }, [])
+
+  const stats = getHistoryStats(sessions)
 
   return (
     <>

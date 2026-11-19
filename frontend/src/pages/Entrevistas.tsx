@@ -1,5 +1,5 @@
 import { ChevronRight, Clock, MessageSquare, Mic, Search } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Badge } from '../components/ui/Badge'
 import type { BadgeTone } from '../components/ui/Badge'
@@ -7,6 +7,7 @@ import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { useAppSettings } from '../context/appSettings'
 import {
+  fetchSupabaseSessions,
   formatDuration,
   formatSessionDate,
   modeKey,
@@ -25,9 +26,24 @@ function modeTone(mode: string): BadgeTone {
 export function Entrevistas() {
   const t = useTranslation()
   const { language } = useAppSettings()
-  const sessions = useMemo(() => readSessions(), [])
+  //const sessions = useMemo(() => readSessions(), [])
   const [filter, setFilter] = useState<Filter>('all')
   const [search, setSearch] = useState('')
+
+  const [sessions, setSessions] = useState<ReturnType<typeof readSessions>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    fetchSupabaseSessions().then((data) => {
+      if (!active) return
+      setSessions(data)
+      setLoading(false)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
 
   const filters: { id: Filter; label: string }[] = [
     { id: 'all', label: t.history.all },
@@ -87,7 +103,7 @@ export function Entrevistas() {
         </div>
       </div>
 
-      {sessions.length === 0 ? (
+      {loading ? (
         <Card className="flex flex-col items-center gap-3 p-8 text-center">
           <span className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Mic className="size-6" strokeWidth={1.75} />

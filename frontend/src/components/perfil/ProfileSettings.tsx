@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+
 import {
   Bell,
   ChevronRight,
@@ -16,7 +19,7 @@ import {
   User,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { useState } from 'react'
+//import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSettings } from '../../context/appSettings'
@@ -164,10 +167,49 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
     voiceName,
   } = useAppSettings()
   const [modal, setModal] = useState<ModalName>(null)
+  const [userInfo, setUserInfo] = useState({
+    fullName: 'Cargando...',
+    email: '...',
+    initials: 'U',
+  })
   const plan = readPlan()
 
-  const handleLogout = () => {
-    logout()
+  useEffect(() => {
+    let active = true
+
+    async function loadUserProfile() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
+      if (!active || !user) return
+
+      const fullName =
+        user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
+      const email = user.email || ''
+      const initials = fullName
+        .split(' ')
+        .filter(Boolean)
+        .map((part: string) => part[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+
+      setUserInfo({
+        fullName,
+        email,
+        initials: initials || 'U',
+      })
+    }
+
+    loadUserProfile()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const handleLogout = async () => {
+    await logout()
     navigate('/login')
   }
 
@@ -176,14 +218,14 @@ export function ProfileSettings({ onUpgrade }: { onUpgrade: () => void }) {
       <Card className="p-5">
         <div className="flex items-center gap-4">
           <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-primary font-display text-h2 font-semibold text-white">
-            AQ
+            {userInfo.initials}
           </div>
           <div className="min-w-0">
             <p className="font-display text-h2 font-semibold text-content-primary">
-              Andrea Quispe
+              {userInfo.fullName}
             </p>
             <p className="truncate text-label text-content-secondary">
-              andrea.quispe@email.com
+              {userInfo.email}
             </p>
             <button
               type="button"

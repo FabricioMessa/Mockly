@@ -498,3 +498,46 @@ export function ensureDemoSessions() {
     // Si localStorage no está disponible, la app sigue funcionando con datos vacíos.
   }
 }
+
+import { supabase } from './supabase'
+
+export async function fetchSupabaseSessions(): Promise<
+  ReturnType<typeof readSessions>
+> {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return []
+
+  const { data, error } = await supabase
+    .from('interview_sessions')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error || !data) {
+    console.error('Error al cargar sesiones desde Supabase:', error?.message)
+    return []
+  }
+
+  return data.map((row: any) => ({
+    id: row.id,
+    mode: row.mode ?? 'laboral',
+    role: row.role_category ?? 'Simulacro',
+    difficulty: row.difficulty ?? 'Intermedio',
+    durationSeconds: row.duration_seconds ?? 300,
+    completedAt: row.created_at,
+    demo: false,
+    questions: Array.isArray(row.questions) ? row.questions : [],
+    answers: Array.isArray(row.answers) ? row.answers : [],
+    evaluation: row.feedback_summary ?? {
+      score: row.overall_score ?? 0,
+      summary: '',
+      star: { situation: '', task: '', action: '', result: '' },
+      metrics: { fluency: 0, fillerWords: 'N/A', confidence: 0, keywords: '0/0' },
+      strengths: [],
+      recommendations: [],
+    },
+  })) as ReturnType<typeof readSessions>
+}

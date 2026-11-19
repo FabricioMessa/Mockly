@@ -13,6 +13,8 @@ export function PerfilPago() {
   const t = useTranslation()
   const [mobileView, setMobileView] = useState<MobileView>('perfil')
 
+  
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-2 lg:hidden">

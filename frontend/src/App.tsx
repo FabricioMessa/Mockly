@@ -3,14 +3,18 @@ import { RequireAuth } from './components/auth/RequireAuth'
 import { AppShell } from './components/layout/AppShell'
 import { Dashboard } from './pages/Dashboard'
 import { DesignSystem } from './pages/DesignSystem'
+import { EntrevistaDetalle } from './pages/EntrevistaDetalle'
+import { Entrevistas } from './pages/Entrevistas'
+import { FeedbackReport } from './pages/FeedbackReport'
 import { Login } from './pages/Login'
 import { NotFound } from './pages/NotFound'
 import { PerfilPago } from './pages/PerfilPago'
-import { PlaceholderPage } from './pages/PlaceholderPage'
+import { Progreso } from './pages/Progreso'
+import { RecursoDetalle } from './pages/RecursoDetalle'
+import { Recursos } from './pages/Recursos'
 import { Register } from './pages/Register'
 import { SalaSimulacro } from './pages/SalaSimulacro'
 import { SetupInterview } from './pages/SetupInterview'
-import { FeedbackReport } from './pages/FeedbackReport'
 
 export default function App() {
   return (
@@ -27,36 +31,11 @@ export default function App() {
 
           <Route element={<AppShell />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route
-              path="/entrevistas"
-              element={
-                <PlaceholderPage
-                  title="Entrevistas"
-                  description="Historial de simulacros y acceso a la sala en vivo."
-                  owner="Fase 2"
-                />
-              }
-            />
-            <Route
-              path="/progreso"
-              element={
-                <PlaceholderPage
-                  title="Progreso"
-                  description="Métricas, puntajes y evolución del usuario."
-                  owner="Fase 2"
-                />
-              }
-            />
-            <Route
-              path="/recursos"
-              element={
-                <PlaceholderPage
-                  title="Recursos"
-                  description="Guías y material de apoyo para las entrevistas."
-                  owner="Fase 2"
-                />
-              }
-            />
+            <Route path="/entrevistas" element={<Entrevistas />} />
+            <Route path="/entrevistas/:id" element={<EntrevistaDetalle />} />
+            <Route path="/progreso" element={<Progreso />} />
+            <Route path="/recursos" element={<Recursos />} />
+            <Route path="/recursos/:id" element={<RecursoDetalle />} />
             <Route path="/perfil" element={<PerfilPago />} />
             <Route path="/design-system" element={<DesignSystem />} />
           </Route>

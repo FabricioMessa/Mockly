@@ -1,7 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { Square, Volume2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useAppSettings } from '../context/appSettings'
+import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import type { InterviewEvaluation } from '../lib/api'
-import { readEvaluation, readSetup } from '../lib/interviewStorage'
+import { useTranslation } from '../lib/i18n'
+import { readEvaluation } from '../lib/interviewStorage'
+import { useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const fallbackEvaluation: InterviewEvaluation = {
@@ -34,15 +38,18 @@ const fallbackEvaluation: InterviewEvaluation = {
 
 export function FeedbackReport() {
   const navigate = useNavigate()
-  const rawEvaluation = readEvaluation()
-  const evaluation = rawEvaluation ?? fallbackEvaluation
-  const setup = readSetup() // Lee el rol y dificultad que eligió el usuario
+  const t = useTranslation()
+  const { language, voiceName, speechRate } = useAppSettings()
+  const { supported: ttsSupported, speaking, speak, stop } =
+    useSpeechSynthesis({ language, voiceName, rate: speechRate })
+  const evaluation = readEvaluation() ?? fallbackEvaluation
+  
   const savedRef = useRef(false)
 
   useEffect(() => {
     async function saveSessionToDB() {
-      // Solo guardamos si hay una evaluación real (no el fallback) y si aún no se ha guardado
-      if (!rawEvaluation || savedRef.current) return
+      // Evita guardar datos de demostración o duplicar el registro
+      if (!readEvaluation || savedRef.current) return
       savedRef.current = true
 
       const {
@@ -53,25 +60,35 @@ export function FeedbackReport() {
       const { error } = await supabase.from('interview_sessions').insert([
         {
           user_id: user.id,
-          role_category: setup?.role ?? 'Junior Software Engineer',
-          difficulty: setup?.difficulty ?? 'Intermedio',
+          role_category: 'Simulacro IA',
+          difficulty: 'Intermedio',
           overall_score: evaluation.score,
-          feedback_summary: evaluation, // Guarda todo el JSON con STAR y métricas
+          feedback_summary: evaluation,
         },
       ])
 
       if (error) {
-        console.error('Error al guardar la sesión en Supabase:', error.message)
+        console.error('Error al guardar sesión en Supabase:', error.message)
       }
     }
 
     saveSessionToDB()
-  }, [rawEvaluation, evaluation, setup])
+  }, [readEvaluation, evaluation])
 
   const isAi = evaluation.provider === 'gemini'
   const keywordHint =
     evaluation.strengths.slice(0, 3).join(', ') || 'STAR, métricas, liderazgo'
-  
+
+  const feedbackSpeech = [
+    `${t.feedback.score}: ${evaluation.score} ${t.feedback.outOf} 100.`,
+    evaluation.summary,
+    `${t.feedback.star}. ${t.feedback.situation}: ${evaluation.star.situation}`,
+    `${t.feedback.task}: ${evaluation.star.task}`,
+    `${t.feedback.action}: ${evaluation.star.action}`,
+    `${t.feedback.result}: ${evaluation.star.result}`,
+    `${t.feedback.recommendations}: ${evaluation.recommendations.join(' ')}`,
+  ].join(' ')
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 p-6 md:p-10">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -115,6 +132,21 @@ export function FeedbackReport() {
                   </strong>
                 </span>
               </div>
+
+              {ttsSupported && (
+                <button
+                  type="button"
+                  onClick={() => (speaking ? stop() : speak(feedbackSpeech))}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-slate-50"
+                >
+                  {speaking ? (
+                    <Square className="size-3.5" strokeWidth={1.75} />
+                  ) : (
+                    <Volume2 className="size-3.5" strokeWidth={1.75} />
+                  )}
+                  {speaking ? t.feedback.stop : t.feedback.listen}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ class QuestionsRequest(BaseModel):
     difficulty: str = "intermedio"
     tone: str = "neutral"
     count: int = Field(default=3, ge=1, le=5)
+    language: str = "es"
 
 
 class Question(BaseModel):
@@ -26,6 +27,7 @@ class EvaluateRequest(BaseModel):
     answer: str
     mode: str = "laboral"
     role: str = "Product Manager"
+    language: str = "es"
 
 
 class StarFeedback(BaseModel):

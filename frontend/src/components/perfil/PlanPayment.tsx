@@ -2,6 +2,7 @@ import { Check, Clock, CreditCard, Lock } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { setPlan as persistPlan } from '../../lib/plan'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
@@ -99,6 +100,7 @@ export function PlanPayment() {
     if (!paying) return
     const id = setTimeout(() => {
       setPaying(false)
+      persistPlan('pro')
       setSuccess(true)
     }, 1400)
     return () => clearTimeout(id)

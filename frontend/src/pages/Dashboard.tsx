@@ -1,5 +1,4 @@
 import { Award, CalendarDays, Clock, Flame } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { ContinueMobile } from '../components/dashboard/ContinueMobile'
 import { ContinuePanel } from '../components/dashboard/ContinuePanel'
 import { MobileHeader } from '../components/dashboard/MobileHeader'
@@ -9,9 +8,19 @@ import { modes } from '../components/dashboard/modes'
 import { WeeklyProgress } from '../components/dashboard/WeeklyProgress'
 import { InstallBanner } from '../components/pwa/InstallBanner'
 import { StatChip } from '../components/ui/StatChip'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import {
+  formatTotalTime,
+  getHistoryStats,
+  readSessions,
+} from '../lib/interviewHistory'
+import { useTranslation } from '../lib/i18n'
 
 export function Dashboard() {
+  const t = useTranslation()
+  const stats = getHistoryStats(readSessions())
+
   const [firstName, setFirstName] = useState('Usuario')
 
   useEffect(() => {
@@ -23,7 +32,6 @@ export function Dashboard() {
       if (user) {
         const fullName =
           user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
-        // Tomamos solo el primer nombre para mantener el estilo limpio "Hola, [Nombre]"
         setFirstName(fullName.split(' ')[0])
       }
     }
@@ -49,26 +57,26 @@ export function Dashboard() {
           <div className="grid grid-cols-3 gap-3 lg:grid-cols-4">
             <StatChip
               icon={<CalendarDays className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value={12}
-              label="entrevistas"
+              value={stats.total}
+              label={t.stats.interviews}
               tone="primary"
             />
             <StatChip
               icon={<Award className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value={84}
-              label="puntaje"
+              value={Math.round(stats.averageScore)}
+              label={t.stats.score}
               tone="accent"
             />
             <StatChip
               icon={<Flame className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value={7}
-              label="racha de días"
+              value={stats.currentStreak}
+              label={t.stats.streak}
               tone="warning"
             />
             <StatChip
               icon={<Clock className="size-4 lg:size-5" strokeWidth={1.75} />}
-              value="14h"
-              label="tiempo total"
+              value={formatTotalTime(stats.totalSeconds)}
+              label={t.stats.time}
               tone="primary"
               className="hidden lg:flex"
             />

@@ -42,6 +42,7 @@ export interface QuestionsParams {
   difficulty: string
   tone: string
   count?: number
+  language: 'es' | 'en'
 }
 
 export interface QuestionsResult {
@@ -55,6 +56,7 @@ export interface EvaluateParams {
   answer: string
   mode: string
   role: string
+  language: 'es' | 'en'
 }
 
 async function postJson<T>(path: string, body: unknown): Promise<T> {

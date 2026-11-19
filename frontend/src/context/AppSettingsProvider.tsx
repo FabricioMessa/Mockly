@@ -39,6 +39,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
       setTheme: (theme) => update({ theme }),
       setTimezone: (timezone) => update({ timezone }),
       setPublicProfile: (publicProfile) => update({ publicProfile }),
+      setVoiceName: (voiceName) => update({ voiceName }),
+      setSpeechRate: (speechRate) => update({ speechRate }),
     }),
     [preferences, update],
   )

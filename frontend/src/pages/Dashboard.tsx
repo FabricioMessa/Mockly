@@ -114,7 +114,7 @@ export function Dashboard() {
 
         <aside className="hidden flex-col gap-4 lg:flex">
           <ContinuePanel />
-          <WeeklyProgress />
+          <WeeklyProgress sessions={sessions} />
         </aside>
       </div>
     </>

@@ -9,13 +9,15 @@ import {
   Trophy,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { useMemo } from 'react'
+//import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { ProgressBar } from '../components/ui/ProgressBar'
 import { StatChip } from '../components/ui/StatChip'
 import { useAppSettings } from '../context/appSettings'
+import { useEffect, useState } from 'react'
+import { fetchSupabaseSessions } from '../lib/interviewHistory'
 import {
   formatTotalTime,
   getHistoryStats,
@@ -39,7 +41,31 @@ interface Achievement {
 export function Progreso() {
   const t = useTranslation()
   const { language } = useAppSettings()
-  const sessions = useMemo(() => readSessions(), [])
+  //const sessions = useMemo(() => readSessions(), [])
+
+  // Dentro de Progreso():
+  const [sessions, setSessions] = useState<ReturnType<typeof readSessions>>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let active = true
+    fetchSupabaseSessions().then((data) => {
+      if (!active) return
+      setSessions(data)
+      setLoading(false)
+    })
+    return () => {
+      active = false
+    }
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="p-6 text-caption text-content-secondary">
+        Cargando progreso de tu cuenta...
+      </div>
+    )
+  }
 
   if (sessions.length === 0) {
     return (

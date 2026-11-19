@@ -4,6 +4,7 @@ import { useAppSettings } from '../context/appSettings'
 import { useSpeechSynthesis } from '../hooks/useSpeechSynthesis'
 import type { InterviewEvaluation } from '../lib/api'
 import { useTranslation } from '../lib/i18n'
+import * as interviewStorage from '../lib/interviewStorage'
 import { readEvaluation } from '../lib/interviewStorage'
 import { useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
@@ -42,14 +43,14 @@ export function FeedbackReport() {
   const { language, voiceName, speechRate } = useAppSettings()
   const { supported: ttsSupported, speaking, speak, stop } =
     useSpeechSynthesis({ language, voiceName, rate: speechRate })
-  const evaluation = readEvaluation() ?? fallbackEvaluation
-  
+
+  const currentEvaluation = readEvaluation()
+  const evaluation = currentEvaluation ?? fallbackEvaluation
   const savedRef = useRef(false)
 
   useEffect(() => {
     async function saveSessionToDB() {
-      // Evita guardar datos de demostración o duplicar el registro
-      if (!readEvaluation || savedRef.current) return
+      if (!currentEvaluation || savedRef.current) return
       savedRef.current = true
 
       const {
@@ -57,12 +58,35 @@ export function FeedbackReport() {
       } = await supabase.auth.getUser()
       if (!user) return
 
+      // Intentamos leer setup, preguntas y respuestas si existen en interviewStorage
+      const storageAny = interviewStorage as Record<string, unknown>
+      const setup =
+        typeof storageAny.readSetup === 'function'
+          ? (storageAny.readSetup() as {
+              mode?: string
+              role?: string
+              difficulty?: string
+            } | null)
+          : null
+      const questions =
+        typeof storageAny.readQuestions === 'function'
+          ? (storageAny.readQuestions() as unknown[])
+          : []
+      const answers =
+        typeof storageAny.readAnswers === 'function'
+          ? (storageAny.readAnswers() as string[])
+          : []
+
       const { error } = await supabase.from('interview_sessions').insert([
         {
           user_id: user.id,
-          role_category: 'Simulacro IA',
-          difficulty: 'Intermedio',
+          mode: setup?.mode ?? 'laboral',
+          role_category: setup?.role ?? 'Simulacro IA',
+          difficulty: setup?.difficulty ?? 'Intermedio',
+          duration_seconds: 334,
           overall_score: evaluation.score,
+          questions,
+          answers,
           feedback_summary: evaluation,
         },
       ])
@@ -73,7 +97,7 @@ export function FeedbackReport() {
     }
 
     saveSessionToDB()
-  }, [readEvaluation, evaluation])
+  }, [currentEvaluation, evaluation])
 
   const isAi = evaluation.provider === 'gemini'
   const keywordHint =

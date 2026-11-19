@@ -1,3 +1,5 @@
+import { supabase } from './supabase'
+
 export interface StoredUser {
   fullName: string
   email: string
@@ -29,26 +31,10 @@ export function startSession() {
   window.localStorage.setItem(TOKEN_KEY, 'session_active_123')
 }
 
-export function login(email: string, password: string): boolean {
-  if (
-    email === DEMO_CREDENTIALS.email &&
-    password === DEMO_CREDENTIALS.password
-  ) {
-    startSession()
-    return true
-  }
-
-  const user = getStoredUser()
-  if (!user || user.email !== email || user.password !== password) {
-    return false
-  }
-
-  startSession()
-  return true
-}
-
-export function logout() {
+export async function logout() {
   window.localStorage.removeItem(TOKEN_KEY)
+  window.localStorage.removeItem(USER_KEY)
+  await supabase.auth.signOut()
 }
 
 export function isAuthenticated(): boolean {
@@ -56,11 +42,5 @@ export function isAuthenticated(): boolean {
 }
 
 export function ensureDemoUser() {
-  if (!getStoredUser()) {
-    saveUser({
-      fullName: 'Andrea Quispe',
-      email: DEMO_CREDENTIALS.email,
-      password: DEMO_CREDENTIALS.password,
-    })
-  }
+  // Desactivado para no sobreescribir el usuario real de Supabase
 }

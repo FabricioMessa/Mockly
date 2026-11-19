@@ -1,10 +1,47 @@
 import { Bell } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useAppSettings } from '../../context/appSettings'
 import { useTranslation } from '../../lib/i18n'
+import { supabase } from '../../lib/supabase'
 
 export function UserActions() {
   const { language, toggleLanguage } = useAppSettings()
   const t = useTranslation()
+  const [initial, setInitial] = useState('U')
+
+  useEffect(() => {
+    let active = true
+
+    async function loadInitial() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!active || !user) return
+
+      let name =
+        typeof user.user_metadata?.full_name === 'string'
+          ? user.user_metadata.full_name.trim()
+          : ''
+
+      if (!name) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle()
+        name =
+          typeof data?.full_name === 'string' ? data.full_name.trim() : ''
+      }
+
+      const source = name || user.email || user.id
+      setInitial(source.charAt(0).toUpperCase() || 'U')
+    }
+
+    void loadInitial()
+    return () => {
+      active = false
+    }
+  }, [])
 
   return (
     <div className="flex items-center gap-2">
@@ -48,7 +85,7 @@ export function UserActions() {
         className="flex size-10 items-center justify-center rounded-full bg-primary font-display text-label font-semibold text-white"
         aria-label={t.user.profile}
       >
-        A
+        {initial}
       </div>
     </div>
   )

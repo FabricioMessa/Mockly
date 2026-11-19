@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
+import { setActiveUserId } from '../../lib/interviewHistory'
 import { supabase } from '../../lib/supabase'
 
 export function RequireAuth() {
@@ -8,6 +9,7 @@ export function RequireAuth() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      setActiveUserId(session?.user.id ?? null)
       setAuthenticated(!!session)
       setLoading(false)
     })
@@ -15,6 +17,7 @@ export function RequireAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      setActiveUserId(session?.user.id ?? null)
       setAuthenticated(!!session)
       setLoading(false)
     })

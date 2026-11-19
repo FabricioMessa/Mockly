@@ -47,6 +47,20 @@ export interface SkillSummary {
 const STORAGE_KEY = 'mockly_sessions'
 const SEED_FLAG = 'mockly_sessions_seeded'
 
+let activeUserId: string | null = null
+
+export function setActiveUserId(userId: string | null) {
+  activeUserId = userId
+}
+
+function sessionsKey(): string {
+  return `${STORAGE_KEY}:${activeUserId ?? 'guest'}`
+}
+
+function seedKey(): string {
+  return `${SEED_FLAG}:${activeUserId ?? 'guest'}`
+}
+
 function readStorage<T>(key: string): T | null {
   try {
     const raw = window.localStorage.getItem(key)
@@ -76,7 +90,7 @@ function isValidSession(value: unknown): value is InterviewSession {
 }
 
 export function readSessions(): InterviewSession[] {
-  const sessions = readStorage<unknown[]>(STORAGE_KEY) ?? []
+  const sessions = readStorage<unknown[]>(sessionsKey()) ?? []
   return sessions
     .filter(isValidSession)
     .sort(
@@ -88,12 +102,12 @@ export function readSessions(): InterviewSession[] {
 
 export function saveSession(session: InterviewSession) {
   const sessions = readSessions().filter((item) => item.id !== session.id)
-  writeStorage(STORAGE_KEY, [session, ...sessions])
+  writeStorage(sessionsKey(), [session, ...sessions])
 }
 
 export function deleteSession(id: string) {
   writeStorage(
-    STORAGE_KEY,
+    sessionsKey(),
     readSessions().filter((session) => session.id !== id),
   )
 }
@@ -487,13 +501,13 @@ function buildDemoSessions(): InterviewSession[] {
 
 export function ensureDemoSessions() {
   try {
-    if (window.localStorage.getItem(SEED_FLAG) === '1') return
+    if (window.localStorage.getItem(seedKey()) === '1') return
     if (readSessions().length > 0) {
-      window.localStorage.setItem(SEED_FLAG, '1')
+      window.localStorage.setItem(seedKey(), '1')
       return
     }
-    writeStorage(STORAGE_KEY, buildDemoSessions())
-    window.localStorage.setItem(SEED_FLAG, '1')
+    writeStorage(sessionsKey(), buildDemoSessions())
+    window.localStorage.setItem(seedKey(), '1')
   } catch {
     // Si localStorage no está disponible, la app sigue funcionando con datos vacíos.
   }
@@ -621,10 +635,16 @@ export async function saveSupabaseSession(
 
 export async function deleteSupabaseSession(id: string): Promise<void> {
   try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
     const { error } = await supabase
       .from('interview_sessions')
       .delete()
       .eq('id', id)
+      .eq('user_id', user.id)
 
     if (error) {
       console.error('Error al eliminar la sesión en Supabase:', error.message)

@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAppSettings } from '../context/appSettings'
 import { fetchQuestions } from '../lib/api'
 import type { Question } from '../lib/api'
+import { getFallbackQuestions } from '../lib/fallbackQuestions'
 import { saveQuestions, saveSetup } from '../lib/interviewStorage'
 import { supabase } from '../lib/supabase'
 
@@ -30,11 +31,16 @@ export function SetupInterview() {
   const [tone, setTone] = useState('Neutral')
   const [aiQuestions, setAiQuestions] = useState<Question[]>([])
   const [generating, setGenerating] = useState(false)
-  const [aiError, setAiError] = useState('')
+  const [aiNotice, setAiNotice] = useState('')
 
   const handleGenerate = async () => {
     setGenerating(true)
-    setAiError('')
+    setAiNotice('')
+
+    const fallback = getFallbackQuestions(language, mode, role)
+    setAiQuestions(fallback)
+    saveQuestions(fallback)
+    saveSetup({ mode, role, difficulty, tone })
 
     try {
       const result = await fetchQuestions({
@@ -45,27 +51,42 @@ export function SetupInterview() {
         count: 3,
         language,
       })
-      setAiQuestions(result.questions)
-      saveQuestions(result.questions)
-      saveSetup({ mode, role, difficulty, tone })
-    } catch {
-      const { data, error } = await supabase
-        .from('questions_bank')
-        .select('*')
-        .eq('role_category', role)
 
-      if (!error && data && data.length > 0) {
-        const fallbackQuestions: Question[] = data.map((q: any) => ({
-          id: q.id,
-          text: q.question_text,
-          focus: `${q.difficulty} (Banco BD)`,
-        }))
-        setAiQuestions(fallbackQuestions)
-        saveQuestions(fallbackQuestions)
-        saveSetup({ mode, role, difficulty, tone })
-      } else {
-        setAiError(
-          'No se pudo conectar con la IA ni cargar preguntas de respaldo.',
+      if (result.questions.length > 0) {
+        setAiQuestions(result.questions)
+        saveQuestions(result.questions)
+        if (result.provider === 'mock') {
+          setAiNotice(
+            'La IA está saturada en este momento; se usaron preguntas de respaldo. Puedes reintentar.',
+          )
+        }
+      }
+    } catch {
+      try {
+        const { data, error } = await supabase
+          .from('questions_bank')
+          .select('*')
+          .eq('role_category', role)
+
+        if (!error && data && data.length > 0) {
+          const bankQuestions: Question[] = data.map((q: any) => ({
+            id: q.id,
+            text: q.question_text,
+            focus: `${q.difficulty} (Banco BD)`,
+          }))
+          setAiQuestions(bankQuestions)
+          saveQuestions(bankQuestions)
+          setAiNotice(
+            'La IA no respondió; se cargaron preguntas desde el banco.',
+          )
+        } else {
+          setAiNotice(
+            'La IA no respondió; se usaron preguntas de respaldo. Puedes reintentar.',
+          )
+        }
+      } catch {
+        setAiNotice(
+          'La IA no respondió; se usaron preguntas de respaldo. Puedes reintentar.',
         )
       }
     } finally {
@@ -220,8 +241,10 @@ export function SetupInterview() {
               </button>
             </div>
 
-            {aiError && (
-              <p className="mt-3 text-xs font-medium text-red-600">{aiError}</p>
+            {aiNotice && (
+              <p className="mt-3 text-xs font-medium text-amber-600">
+                {aiNotice}
+              </p>
             )}
 
             {aiQuestions.length > 0 && (
